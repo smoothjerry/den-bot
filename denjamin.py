@@ -1,7 +1,7 @@
 import discord
 import os
 import psycopg2
-import openai
+from openai import AsyncOpenAI
 
 # Setup database connection
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -13,7 +13,10 @@ intents = discord.Intents.default()
 intents.message_content = True
 
 # Set up OpenAI API
-openai.api_key = os.getenv("OPENAI_KEY")
+openai_key = os.getenv("OPENAI_KEY")
+openaiClient = AsyncOpenAI(
+    api_key=openai_key,
+)
 
 class MyBot(discord.Client):
     def __init__(self):
@@ -83,8 +86,8 @@ async def on_message(message):
 
         # Call the OpenAI API using the new method
         try:
-            response = await openai.ChatCompletion.acreate(
-                model="gpt-4",  # You can also use "gpt-3.5-turbo"
+            response = await client.chat.completions.create(
+                model="gpt-3.5-turbo",  # You can also use "gpt-3.5-turbo"
                 messages=[{"role": "user", "content": user_input}]
             )
             bot_reply = response['choices'][0]['message']['content']
