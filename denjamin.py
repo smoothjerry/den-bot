@@ -56,14 +56,15 @@ async def update_points(ctx, member: discord.Member, points: int):
 @bot.command(name="listpoints")
 async def list_points(ctx):
     try:
-        cursor.execute('SELECT display_name, points FROM points ORDER BY points DESC')
+        cursor.execute('SELECT user_id, points FROM points ORDER BY points DESC')
         rows = cursor.fetchall()
 
         if not rows:
             await ctx.send("No points have been awarded yet!")
             return
 
-        leaderboard = "\n".join([f"{row[0]}: {row[1]} points" for row in rows])
+        # Create a leaderboard with user mentions
+        leaderboard = "\n".join([f"<@{row[0]}>: {row[1]} points" for row in rows])
         await ctx.send(f"**Den Points Leaderboard:**\n{leaderboard}")
     except Exception as e:
         conn.rollback()  # Roll back in case of an error
