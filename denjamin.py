@@ -30,18 +30,21 @@ async def on_ready():
 @bot.command(name="updatepoints")
 async def update_points(ctx, member: discord.Member, points: int):
     user_id = member.id
-    username = str(member)
+    username = str(member)  # Full username (e.g., Username#1234)
+    display_name = member.display_name  # User's display name in the server
+
     try:
         cursor.execute('SELECT points FROM points WHERE user_id = %s', (user_id,))
         result = cursor.fetchone()
 
         if result:
             new_points = result[0] + points
-            cursor.execute('UPDATE points SET points = %s WHERE user_id = %s', (new_points, user_id))
+            cursor.execute('UPDATE points SET points = %s, display_name = %s WHERE user_id = %s', 
+                           (new_points, display_name, user_id))
         else:
             new_points = points
-            cursor.execute('INSERT INTO points (user_id, username, points) VALUES (%s, %s, %s)', 
-                           (user_id, username, new_points))
+            cursor.execute('INSERT INTO points (user_id, username, display_name, points) VALUES (%s, %s, %s, %s)', 
+                           (user_id, username, display_name, new_points))
 
         conn.commit()  # Commit changes after successful update
         action = "Added" if points > 0 else "Subtracted"
@@ -53,7 +56,7 @@ async def update_points(ctx, member: discord.Member, points: int):
 @bot.command(name="listpoints")
 async def list_points(ctx):
     try:
-        cursor.execute('SELECT username, points FROM points ORDER BY points DESC')
+        cursor.execute('SELECT display_name, points FROM points ORDER BY points DESC')
         rows = cursor.fetchall()
 
         if not rows:
@@ -65,7 +68,6 @@ async def list_points(ctx):
     except Exception as e:
         conn.rollback()  # Roll back in case of an error
         await ctx.send(f"An error occurred while fetching the leaderboard: {e}")
-
 
 # Token
 TOKEN = os.getenv("BOT_TOKEN")
