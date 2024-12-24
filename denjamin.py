@@ -81,10 +81,10 @@ async def on_message(message):
     if bot.user in message.mentions:
         user_input = message.content.replace(f"<@{bot.user.id}>", "").strip()
 
-        # Call the OpenAI API
+        # Call the OpenAI API using the new method
         try:
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
+            response = await openai.ChatCompletion.acreate(
+                model="gpt-4",  # You can also use "gpt-3.5-turbo"
                 messages=[{"role": "user", "content": user_input}]
             )
             bot_reply = response['choices'][0]['message']['content']
