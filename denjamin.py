@@ -1,9 +1,10 @@
 import discord
 from discord.ext import commands
+import os
 import psycopg2
 
 # Setup database connection
-DATABASE_URL = ${{ Postgres.DATABASE_URL }}  # Get the database URL from environment variables
+DATABASE_URL = os.getenv("DATABASE_URL")
 conn = psycopg2.connect(DATABASE_URL)
 cursor = conn.cursor()
 
