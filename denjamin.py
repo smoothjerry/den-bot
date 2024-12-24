@@ -86,7 +86,7 @@ async def on_message(message):
 
         # Call the OpenAI API using the new method
         try:
-            response = await client.chat.completions.create(
+            response = await openaiClient.chat.completions.create(
                 model="gpt-3.5-turbo",  # You can also use "gpt-3.5-turbo"
                 messages=[{"role": "user", "content": user_input}]
             )
