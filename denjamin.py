@@ -21,7 +21,7 @@ conn.commit()
 # Setup bot
 intents = discord.Intents.default()
 intents.message_content = True  # Ensure this is enabled for text commands.
-bot = commands.Bot(command_prefix="!", intents=intents)
+bot = commands.Bot(command_prefix=commands.when_mentioned_or("!"), intents=intents)
 
 @bot.event
 async def on_ready():
