@@ -1,6 +1,7 @@
 import discord
 import os
 import psycopg2
+import openai
 
 # Setup database connection
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -10,6 +11,9 @@ cursor = conn.cursor()
 # Setup bot
 intents = discord.Intents.default()
 intents.message_content = True
+
+# Set up OpenAI API
+openai.api_key = os.getenv("OPENAI_KEY")
 
 class MyBot(discord.Client):
     def __init__(self):
@@ -66,6 +70,27 @@ async def leaderboard(interaction: discord.Interaction):
     except Exception as e:
         conn.rollback()  # Roll back in case of an error
         await interaction.response.send_message(f"An error occurred while fetching the leaderboard: {e}")
+
+@bot.event
+async def on_message(message):
+    # Ignore messages from the bot itself
+    if message.author == bot.user:
+        return
+
+    # Example: Respond to specific prefix or all messages
+    if message.content.startswith("!chat"):
+        user_input = message.content[len("!chat "):].strip()  # Strip the prefix
+
+        # Call the OpenAI API
+        try:
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[{"role": "user", "content": user_input}]
+            )
+            bot_reply = response['choices'][0]['message']['content']
+            await message.channel.send(bot_reply)
+        except Exception as e:
+            await message.channel.send(f"Error: {e}")
 
 # Token
 TOKEN = os.getenv("BOT_TOKEN")
