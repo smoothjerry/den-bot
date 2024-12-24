@@ -1,13 +1,17 @@
 import discord
 from discord.ext import commands
-import sqlite3
+import os
+import psycopg2
 
-# Setup database
-conn = sqlite3.connect('den_points.db')
+# Setup database connection
+DATABASE_URL = os.getenv("DATABASE_URL")  # Get the database URL from environment variables
+conn = psycopg2.connect(DATABASE_URL)
 cursor = conn.cursor()
+
+# Create table if it doesn't exist
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS points (
-    user_id INTEGER PRIMARY KEY,
+    user_id BIGINT PRIMARY KEY,
     username TEXT,
     points INTEGER DEFAULT 0
 )
