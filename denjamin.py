@@ -32,16 +32,16 @@ async def update_points(interaction: discord.Interaction, member: discord.Member
     display_name = member.display_name  # User's display name in the server
 
     try:
-        cursor.execute('SELECT points FROM points WHERE user_id = ?', (user_id,))
+        cursor.execute('SELECT points FROM points WHERE user_id = %s', (user_id,))
         result = cursor.fetchone()
 
         if result:
             new_points = result[0] + points
-            cursor.execute('UPDATE points SET points = ?, display_name = ? WHERE user_id = ?', 
+            cursor.execute('UPDATE points SET points = %s, display_name = %s WHERE user_id = %s', 
                            (new_points, display_name, user_id))
         else:
             new_points = points
-            cursor.execute('INSERT INTO points (user_id, username, display_name, points) VALUES (?, ?, ?, ?)', 
+            cursor.execute('INSERT INTO points (user_id, username, display_name, points) VALUES (%s, %s, %s, %s)', 
                            (user_id, username, display_name, new_points))
 
         conn.commit()  # Commit changes after successful update
@@ -51,8 +51,8 @@ async def update_points(interaction: discord.Interaction, member: discord.Member
         conn.rollback()  # Roll back in case of an error
         await interaction.response.send_message(f"An error occurred while updating points: {e}")
 
-@bot.tree.command(name="listpoints", description="View the leaderboard of den points.")
-async def list_points(interaction: discord.Interaction):
+@bot.tree.command(name="leaderboard", description="View the leaderboard of den points.")
+async def leaderboard(interaction: discord.Interaction):
     try:
         cursor.execute('SELECT user_id, points FROM points ORDER BY points DESC')
         rows = cursor.fetchall()
