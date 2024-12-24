@@ -22,53 +22,57 @@ conn.commit()
 intents = discord.Intents.default()
 intents.message_content = True  # Ensure this is enabled for text commands.
 bot = commands.Bot(command_prefix=commands.when_mentioned_or("!"), intents=intents)
+tree = bot.tree 
 
 @bot.event
 async def on_ready():
-    print(f"Logged in as {bot.user}")
+    try:
+        await tree.sync()  # Sync slash commands with Discord
+        print(f"Logged in as {bot.user} and synced commands!")
+    except Exception as e:
+        print(f"Failed to sync commands: {e}")
 
-@bot.command(name="updatepoints")
-async def update_points(ctx, member: discord.Member, points: int):
+@tree.command(name="updatepoints", description="Add or subtract points for a user.")
+async def update_points(interaction: discord.Interaction, member: discord.Member, points: int):
     user_id = member.id
     username = str(member)  # Full username (e.g., Username#1234)
     display_name = member.display_name  # User's display name in the server
 
     try:
-        cursor.execute('SELECT points FROM points WHERE user_id = %s', (user_id,))
+        cursor.execute('SELECT points FROM points WHERE user_id = ?', (user_id,))
         result = cursor.fetchone()
 
         if result:
             new_points = result[0] + points
-            cursor.execute('UPDATE points SET points = %s, display_name = %s WHERE user_id = %s', 
+            cursor.execute('UPDATE points SET points = ?, display_name = ? WHERE user_id = ?', 
                            (new_points, display_name, user_id))
         else:
             new_points = points
-            cursor.execute('INSERT INTO points (user_id, username, display_name, points) VALUES (%s, %s, %s, %s)', 
+            cursor.execute('INSERT INTO points (user_id, username, display_name, points) VALUES (?, ?, ?, ?)', 
                            (user_id, username, display_name, new_points))
 
         conn.commit()  # Commit changes after successful update
         action = "Added" if points > 0 else "Subtracted"
-        await ctx.send(f"{action} {abs(points)} points to {member.mention}. Total: {new_points} points.")
+        await interaction.response.send_message(f"{action} {abs(points)} points to {member.mention}. Total: {new_points} points.")
     except Exception as e:
         conn.rollback()  # Roll back in case of an error
-        await ctx.send(f"An error occurred while updating points: {e}")
+        await interaction.response.send_message(f"An error occurred while updating points: {e}")
 
-@bot.command(name="listpoints")
-async def list_points(ctx):
+@tree.command(name="listpoints", description="View the leaderboard of den points.")
+async def list_points(interaction: discord.Interaction):
     try:
         cursor.execute('SELECT user_id, points FROM points ORDER BY points DESC')
         rows = cursor.fetchall()
 
         if not rows:
-            await ctx.send("No points have been awarded yet!")
+            await interaction.response.send_message("No points have been awarded yet!")
             return
 
-        # Create a leaderboard with user mentions
         leaderboard = "\n".join([f"<@{row[0]}>: {row[1]} points" for row in rows])
-        await ctx.send(f"**Den Points Leaderboard:**\n{leaderboard}")
+        await interaction.response.send_message(f"**Den Points Leaderboard:**\n{leaderboard}")
     except Exception as e:
         conn.rollback()  # Roll back in case of an error
-        await ctx.send(f"An error occurred while fetching the leaderboard: {e}")
+        await interaction.response.send_message(f"An error occurred: {e}")
 
 # Token
 TOKEN = os.getenv("BOT_TOKEN")
