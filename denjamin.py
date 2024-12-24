@@ -77,9 +77,9 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
-    # Example: Respond to specific prefix or all messages
-    if message.content.startswith("!chat"):
-        user_input = message.content[len("!chat "):].strip()  # Strip the prefix
+    # Check if the bot is mentioned
+    if bot.user in message.mentions:
+        user_input = message.content.replace(f"<@{bot.user.id}>", "").strip()
 
         # Call the OpenAI API
         try:
