@@ -59,7 +59,7 @@ async def list_points(ctx):
     await ctx.send(f"**Den Points Leaderboard:**\n{leaderboard}")
 
 # Token
-TOKEN = "your_bot_token_here"
+TOKEN = os.getenv("BOT_TOKEN")
 
 # Hosting Instructions
 # ======================
