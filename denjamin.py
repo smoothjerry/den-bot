@@ -90,7 +90,7 @@ async def on_message(message):
                 model="gpt-3.5-turbo",  # You can also use "gpt-3.5-turbo"
                 messages=[{"role": "user", "content": user_input}]
             )
-            bot_reply = response['choices'][0]['message']['content']
+            bot_reply = response.choices[0].message.content
             await message.channel.send(bot_reply)
         except Exception as e:
             await message.channel.send(f"Error: {e}")
