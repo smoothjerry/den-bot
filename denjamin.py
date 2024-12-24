@@ -8,31 +8,25 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 conn = psycopg2.connect(DATABASE_URL)
 cursor = conn.cursor()
 
-# Create table if it doesn't exist
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS points (
-    user_id BIGINT PRIMARY KEY,
-    username TEXT,
-    points INTEGER DEFAULT 0
-)
-''')
-conn.commit()
-
 # Setup bot
 intents = discord.Intents.default()
-intents.message_content = True  # Ensure this is enabled for text commands.
-bot = commands.Bot(command_prefix=commands.when_mentioned_or("!"), intents=intents)
-tree = bot.tree 
+intents.message_content = True
 
-@bot.event
-async def on_ready():
-    try:
-        await tree.sync()  # Sync slash commands with Discord
-        print(f"Logged in as {bot.user} and synced commands!")
-    except Exception as e:
-        print(f"Failed to sync commands: {e}")
+class MyBot(discord.Client):
+    def __init__(self):
+        super().__init__(intents=intents)
+        self.tree = discord.app_commands.CommandTree(self)
 
-@tree.command(name="updatepoints", description="Add or subtract points for a user.")
+    async def on_ready(self):
+        try:
+            await self.tree.sync()  # Sync slash commands with Discord
+            print(f"Logged in as {self.user} and synced commands!")
+        except Exception as e:
+            print(f"Failed to sync commands: {e}")
+
+bot = MyBot()
+
+@bot.tree.command(name="updatepoints", description="Add or subtract points for a user.")
 async def update_points(interaction: discord.Interaction, member: discord.Member, points: int):
     user_id = member.id
     username = str(member)  # Full username (e.g., Username#1234)
@@ -58,7 +52,7 @@ async def update_points(interaction: discord.Interaction, member: discord.Member
         conn.rollback()  # Roll back in case of an error
         await interaction.response.send_message(f"An error occurred while updating points: {e}")
 
-@tree.command(name="listpoints", description="View the leaderboard of den points.")
+@bot.tree.command(name="listpoints", description="View the leaderboard of den points.")
 async def list_points(interaction: discord.Interaction):
     try:
         cursor.execute('SELECT user_id, points FROM points ORDER BY points DESC')
@@ -72,50 +66,9 @@ async def list_points(interaction: discord.Interaction):
         await interaction.response.send_message(f"**Den Points Leaderboard:**\n{leaderboard}")
     except Exception as e:
         conn.rollback()  # Roll back in case of an error
-        await interaction.response.send_message(f"An error occurred: {e}")
+        await interaction.response.send_message(f"An error occurred while fetching the leaderboard: {e}")
 
 # Token
 TOKEN = os.getenv("BOT_TOKEN")
-
-# Hosting Instructions
-# ======================
-# To host the bot, follow these detailed steps:
-
-# 1. Local Testing
-#    - Ensure Python is installed on your system.
-#    - Install dependencies using: pip install discord.py
-#    - Replace "your_bot_token_here" with your actual Discord bot token from the Discord Developer Portal.
-#    - Run the bot locally: python bot.py
-
-# 2. Hosting on Heroku
-#    - Sign up at https://www.heroku.com/.
-#    - Install the Heroku CLI: https://devcenter.heroku.com/articles/heroku-cli.
-#    - Initialize a Git repository and push your code to Heroku:
-#        1. heroku login
-#        2. git init
-#        3. heroku create
-#        4. git add .
-#        5. git commit -m "Initial commit"
-#        6. git push heroku master
-#    - Set the bot token as a config variable:
-#        heroku config:set TOKEN=your_bot_token_here
-#    - Use a `Procfile` to specify the command to run the bot:
-#        worker: python bot.py
-
-# 3. Hosting on Railway
-#    - Sign up at https://railway.app/.
-#    - Connect your GitHub repository to Railway.
-#    - Add the bot token in the environment variables section under the key "TOKEN".
-#    - Deploy the project and monitor logs for successful startup.
-
-# 4. Hosting on Render
-#    - Sign up at https://render.com/.
-#    - Create a new Web Service, linking your GitHub repository.
-#    - Set the environment variable "TOKEN" with your bot token.
-#    - Specify "python bot.py" as the start command.
-
-# 5. Database Considerations
-#    - For long-term hosting, consider using a hosted database (e.g., PostgreSQL or MongoDB) instead of SQLite for better scalability.
-#    - Many platforms like Heroku and Railway provide integrated database solutions.
 
 bot.run(TOKEN)
