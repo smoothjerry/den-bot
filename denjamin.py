@@ -16,7 +16,7 @@ intents.message_content = True
 
 # Set up OpenAI API
 openai_key = os.getenv("OPENAI_KEY")
-chatbot = ChatGPTHandler(api_key=openai_key)
+chatbot = ChatGPTHandler(openai_key)
 
 class MyBot(discord.Client):
     def __init__(self):
