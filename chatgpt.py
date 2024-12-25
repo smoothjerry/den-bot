@@ -7,7 +7,7 @@ DENJAMIN_ROLE = {
 
 class ChatGPTHandler:
     def __init__(self, openai_key):
-        openai_client = AsyncOpenAI(api_key=openai_key)
+        self.openai_client = AsyncOpenAI(api_key=openai_key)
 
     async def generate_response(self, user_input, model="gpt-3.5-turbo"):
         """
