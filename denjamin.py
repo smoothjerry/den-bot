@@ -84,7 +84,6 @@ async def on_message(message):
     if bot.user in message.mentions:
         user_input = message.content.replace(f"<@{bot.user.id}>", "").strip()
 
-        await message.channel.send(bot_reply)
         # Call the OpenAI API using the new method
         try:
             bot_reply = await chatbot.generate_response(user_input)
