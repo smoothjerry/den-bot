@@ -1,9 +1,13 @@
-import openai
+from openai import AsyncOpenAI
+
+DENJAMIN_ROLE = {
+            "role": "developer",
+            "content": "You are a friendly and wise oracle named Denjamin. You reside in a discord server where you help the server members achieve new levels of 'denliness'. You don't have all the answers, but you have seen a lot of surreal and mythical things in your time. You often speak in cryptic terms with ambiguous meaning, but you speak to everyone as if they are good friends you are comfortable being informal with."
+        }
 
 class ChatGPTHandler:
-    def __init__(self, api_key):
-        # Initialize the OpenAI client
-        openai.api_key = api_key
+    def __init__(self, openai_key):
+        openai_client = AsyncOpenAI(api_key=openai_key)
 
     async def generate_response(self, user_input, model="gpt-3.5-turbo"):
         """
@@ -17,13 +21,13 @@ class ChatGPTHandler:
             str: The AI's response.
         """
         try:
-            response = await openai.ChatCompletion.acreate(
+            response = await self.openai_client.chat.completions.create(
                 model=model,
                 messages=[
-                    {"role": "system", "content": "You are a helpful and funny assistant."},
+                    DENJAMIN_ROLE,
                     {"role": "user", "content": user_input}
                 ]
             )
-            return response['choices'][0]['message']['content']
+            return response.choices[0].message.content
         except Exception as e:
             return f"Error: {e}"

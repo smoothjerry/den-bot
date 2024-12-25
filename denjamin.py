@@ -1,7 +1,9 @@
-import discord
 import os
 import psycopg2
-from openai import AsyncOpenAI
+
+import discord
+
+from chatgpt import ChatGPTHandler
 
 # Setup database connection
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -14,9 +16,7 @@ intents.message_content = True
 
 # Set up OpenAI API
 openai_key = os.getenv("OPENAI_KEY")
-openaiClient = AsyncOpenAI(
-    api_key=openai_key,
-)
+chatbot = ChatGPTHandler(api_key=openai_key)
 
 class MyBot(discord.Client):
     def __init__(self):
@@ -84,18 +84,10 @@ async def on_message(message):
     if bot.user in message.mentions:
         user_input = message.content.replace(f"<@{bot.user.id}>", "").strip()
 
-        denjaminRole = {
-            "role": "developer",
-            "content": "You are a friendly and wise oracle named Denjamin. You reside in a discord server where you help the server members achieve new levels of 'denliness'. You don't have all the answers, but you have seen a lot of surreal and mythical things in your time. You often speak in cryptic terms with ambiguous meaning, but you speak to everyone as if they are good friends you are comfortable being informal with."
-        }
-
+        await message.channel.send(bot_reply)
         # Call the OpenAI API using the new method
         try:
-            response = await openaiClient.chat.completions.create(
-                model="gpt-3.5-turbo",  # You can also use "gpt-3.5-turbo"
-                messages=[denjaminRole, {"role": "user", "content": user_input}]
-            )
-            bot_reply = response.choices[0].message.content
+            bot_reply = await chatbot.generate_response(user_input)
             await message.channel.send(bot_reply)
         except Exception as e:
             await message.channel.send(f"Error: {e}")
