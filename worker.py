@@ -7,7 +7,8 @@ from workflows import HelloWorldWorkflow, say_hello
 
 async def main():
     # Connect to the Temporal server
-    client = await Client.connect(os.getenv("TEMPORAL"))  # Replace "temporal" with the Railway Temporal host if needed
+    client = await Client.connect(os.getenv("TEMPORAL", "temporal:7233"))  # Replace "temporal" with the Railway Temporal host if needed
+    print("Connected to Temporal")
 
     # Start the worker
     worker = Worker(
