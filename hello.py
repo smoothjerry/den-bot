@@ -39,8 +39,8 @@ class GreetingWorkflow:
 
 async def main():
     # Uncomment the lines below to see logging output
-    # import logging
-    # logging.basicConfig(level=logging.INFO)
+    import logging
+    logging.basicConfig(level=logging.INFO)
 
     # Start client
     client = await Client.connect(os.getenv("TEMPORAL"))
