@@ -44,6 +44,7 @@ async def main():
 
     # Start client
     client = await Client.connect(os.getenv("TEMPORAL"))
+    print("Temporal connected")
 
     # Run a worker for the workflow
     async with Worker(
