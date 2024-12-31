@@ -24,12 +24,14 @@ class ChatGPTHandler:
         """
         embeddings = []
         for message in messages:
-            response = await self.openai_client.embeddings.create(
-                input=message.content,
-                model=TEXT_EMBEDDING_MODEL,
-            )
-
-            embeddings.append(response.data[0].embedding)
+            try:
+                response = await self.openai_client.embeddings.create(
+                    input=message.content,
+                    model=TEXT_EMBEDDING_MODEL,
+                )
+                embeddings.append(response.data[0].embedding)
+            except Exception as e:
+                return f"Error: {e}"
         
         return embeddings
 
