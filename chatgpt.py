@@ -21,6 +21,8 @@ class ChatGPTHandler:
         This method can be used to batch process a series of discord messages and upsert
         the embeddings to Pinecone. Or, they can be used to embed a prompt to ChatGPT
         in order to first query for similar embeddings from Pinecone.
+
+        If one message embedding fails, no embeddings will be returned.
         """
         embeddings = []
         for message in messages:
@@ -35,7 +37,7 @@ class ChatGPTHandler:
         
         return embeddings
 
-    async def generate_response(self, user_input, model="gpt-3.5-turbo"):
+    async def generate_response(self, user_input, model="gpt-4o-mini"):
         """
         Generate a response from ChatGPT based on the user input.
         
@@ -46,6 +48,8 @@ class ChatGPTHandler:
         Returns:
             str: The AI's response.
         """
+        
+        # generate response
         try:
             response = await self.openai_client.chat.completions.create(
                 model=model,

@@ -75,7 +75,7 @@ async def leaderboard(interaction: discord.Interaction):
         await interaction.response.send_message(f"An error occurred while fetching the leaderboard: {e}")
 
 @bot.event
-async def on_message(message):
+async def on_message(message: discord.Message):
     # Ignore messages from the bot itself
     if message.author == bot.user:
         return
@@ -83,7 +83,7 @@ async def on_message(message):
     # Check if the bot is mentioned
     if bot.user in message.mentions:
         user_input = message.content.replace(f"<@{bot.user.id}>", "").strip()
-
+        
         # Call the OpenAI API using the new method
         try:
             bot_reply = await chatbot.generate_response(user_input)
