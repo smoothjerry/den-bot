@@ -48,7 +48,6 @@ parso==0.8.4
 pexpect==4.9.0
 pickleshare==0.7.5
 pinecone==5.4.2
-pinecone-client==5.0.1
 pinecone-plugin-inference
 pinecone-plugin-interface==0.0.7
 pip-autoremove==0.10.0
