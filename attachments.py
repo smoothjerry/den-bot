@@ -4,7 +4,7 @@ import aiohttp
 import discord
 
 async def handle_attachments(message: discord.Message):
-    # Check if the message contains attachments
+    # Check if the message contains attachments / yes
     if message.attachments:
         tasks = []
         for attachment in message.attachments:
