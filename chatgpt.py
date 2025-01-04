@@ -61,7 +61,7 @@ class ChatGPTHandler:
         # Construct the messages list dynamically
         input_messages = [DENJAMIN_ROLE]
         if conversation_context:
-            input_messages.append(conversation_context)
+            input_messages.extend(conversation_context)
         input_messages.append({"role": "user", "content": content})
         
         # generate response
