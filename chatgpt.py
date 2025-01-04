@@ -58,15 +58,17 @@ class ChatGPTHandler:
             }
             content = [new_user_input, *image_data]
         
+        # Construct the messages list dynamically
+        input_messages = [DENJAMIN_ROLE]
+        if conversation_context:
+            input_messages.append(conversation_context)
+        input_messages.append({"role": "user", "content": content})
+        
         # generate response
         try:
             response = await self.openai_client.chat.completions.create(
                 model=model,
-                messages=[
-                    DENJAMIN_ROLE,
-                    conversation_context,
-                    {"role": "user", "content": content}
-                ]
+                messages=input_messages
             )
             return response.choices[0].message.content
         except Exception as e:
