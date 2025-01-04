@@ -5,6 +5,7 @@ import discord
 def format_attachment_data(message: discord.Message):
     """
     Format image data from a discord message into image URL messages for OpenAI.
+    Use array of image URLs.
 
     Returns empty list if there are no images.
     """
