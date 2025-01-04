@@ -38,7 +38,7 @@ class ChatGPTHandler:
         
         return embeddings
 
-    async def generate_response(self, user_input, image_data, model="gpt-4o-mini"):
+    async def generate_response(self, user_input, conversation_context, image_data, model="gpt-4o-mini"):
         """
         Generate a response from ChatGPT based on the user input.
         
@@ -64,6 +64,7 @@ class ChatGPTHandler:
                 model=model,
                 messages=[
                     DENJAMIN_ROLE,
+                    conversation_context,
                     {"role": "user", "content": content}
                 ]
             )
