@@ -86,7 +86,7 @@ async def on_message(message: discord.Message):
     if bot.user in message.mentions:
         user_input = message.content.replace(f"<@{bot.user.id}>", "").strip()
         image_data = images.format_attachment_data(message) # process image attachments
-        conversation_context = messages.format_message_coversation(message) # format reply chain (if exists)
+        conversation_context = await messages.format_message_coversation(message) # format reply chain (if exists)
 
         try:
             bot_reply = await chatbot.generate_response(user_input, conversation_context, image_data)
