@@ -1,5 +1,3 @@
-import asyncio
-
 import discord
 
 def format_attachment_data(message: discord.Message):
