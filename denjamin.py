@@ -90,7 +90,7 @@ async def on_message(message: discord.Message):
 
         try:
             bot_reply = await chatbot.generate_response(user_input, conversation_context, image_data)
-            await message.channel.send(bot_reply)
+            await message.reply(bot_reply)
         except Exception as e:
             await message.channel.send(f"Error: {e}")
 
