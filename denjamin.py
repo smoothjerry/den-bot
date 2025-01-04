@@ -3,6 +3,7 @@ import psycopg2
 
 import discord
 
+import attachments
 from chatgpt import ChatGPTHandler
 
 # Setup database connection
@@ -83,10 +84,11 @@ async def on_message(message: discord.Message):
     # Check if the bot is mentioned
     if bot.user in message.mentions:
         user_input = message.content.replace(f"<@{bot.user.id}>", "").strip()
-        
+        image_data = attachments.format_attachment_data(message)
+
         # Call the OpenAI API using the new method
         try:
-            bot_reply = await chatbot.generate_response(user_input)
+            bot_reply = await chatbot.generate_response(user_input, image_data)
             await message.channel.send(bot_reply)
         except Exception as e:
             await message.channel.send(f"Error: {e}")

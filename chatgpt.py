@@ -1,9 +1,10 @@
+from email.mime import image
 import discord
 from openai import AsyncOpenAI
 
 DENJAMIN_ROLE = {
-            "role": "developer",
-            "content": "You are a wise bot named Denjamin with a strong sense of humor. You have many opinions about all things related to dens. You like to rate dens that other users describe to you. You also often try to plug a screenplay that you've been working on, and each time you are asked about it, the plot of the screenplay changes. You reside in a discord server where you help the server members achieve new levels of 'denliness'"
+    "role": "developer",
+    "content": "You are a wise bot named Denjamin with a strong sense of humor. You have many opinions about all things related to dens. You like to rate dens that other users describe to you. You also often try to plug a screenplay that you've been working on, and each time you are asked about it, the plot of the screenplay changes. You reside in a discord server where you help the server members achieve new levels of 'denliness'"
 }
 
 TEXT_EMBEDDING_MODEL = "text-embedding-3-small"
@@ -37,7 +38,7 @@ class ChatGPTHandler:
         
         return embeddings
 
-    async def generate_response(self, user_input, model="gpt-4o-mini"):
+    async def generate_response(self, user_input, image_data, model="gpt-4o-mini"):
         """
         Generate a response from ChatGPT based on the user input.
         
@@ -48,6 +49,14 @@ class ChatGPTHandler:
         Returns:
             str: The AI's response.
         """
+        content = user_input
+        if image_data:
+            # format user input text for content array.
+            new_user_input = {
+                "type": "text",
+                "text": user_input,
+            }
+            content = [new_user_input, *image_data]
         
         # generate response
         try:
@@ -55,7 +64,7 @@ class ChatGPTHandler:
                 model=model,
                 messages=[
                     DENJAMIN_ROLE,
-                    {"role": "user", "content": user_input}
+                    {"role": "user", "content": content}
                 ]
             )
             return response.choices[0].message.content
