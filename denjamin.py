@@ -20,6 +20,9 @@ intents.message_content = True
 openai_key = os.getenv("OPENAI_KEY")
 chatbot = ChatGPTHandler(openai_key)
 
+# Constants
+REPLY_LIMIT = 5
+
 class MyBot(discord.Client):
     def __init__(self):
         super().__init__(intents=intents)
@@ -86,11 +89,21 @@ async def on_message(message: discord.Message):
     if bot.user in message.mentions:
         user_input = message.content.replace(f"<@{bot.user.id}>", "").strip()
         image_data = images.format_attachment_data(message) # process image attachments
-        conversation_context = await messages.format_message_coversation(message) # format reply chain (if exists)
-
+        conversation_context, is_thread, reply_count = await messages.format_message_coversation(message) # format reply chain (if exists)
+        
         try:
             bot_reply = await chatbot.generate_response(user_input, conversation_context, image_data)
-            await message.reply(bot_reply)
+
+            # Check if the message is already part of a thread
+            if is_thread:
+                await message.channel.send(bot_reply)
+            else:
+                if reply_count >= REPLY_LIMIT:  # Threshold for creating a thread
+                    thread = await message.create_thread(name=f"Conversation with {message.author.display_name}")
+                    await thread.send(bot_reply)
+                else:
+                    await message.reply(bot_reply)
+
         except Exception as e:
             await message.channel.send(f"Error: {e}")
 
