@@ -98,7 +98,7 @@ async def on_message(message: discord.Message):
             if is_thread:
                 await message.channel.send(bot_reply)
             else:
-                if reply_count >= REPLY_LIMIT:  # Threshold for creating a thread
+                if reply_count > REPLY_LIMIT:  # Threshold for creating a thread
                     thread = await message.create_thread(name=f"Conversation with {message.author.display_name}")
                     await thread.send(bot_reply)
                 else:
