@@ -6,20 +6,36 @@ For example: retrieving chain of message replies.
 
 import discord
 
-CHAIN_LIMIT = 10 # limit of how many replies to fetch. controlling tokens to OpenAI.
+CHAIN_LIMIT = 10 # limit of how many replies to fetch. controlling tokens to OpenAI & processing time.
 
-async def fetch_reply_chain(message: discord.Message) -> list[discord.Message]:
+async def get_thread_history(thread: discord.Thread):
     """
-    Fetch a chain of replies starting from a given message.
+    Fetches up to CHAIN_LIMIT messages from a Discord thread. 
+    """
+    messages = []
+    async for message in thread.history(limit=CHAIN_LIMIT):
+        messages.append(message)
+    return messages
+
+async def fetch_reply_chain(message: discord.Message) -> tuple[list[discord.Message], bool, int]:
+    """
+    Fetch a chain of replies starting from a given message. If this message belongs to a thread, will 
+    get the thread history.
 
     Args:
         message (discord.Message): The starting message.
 
     Returns:
         list[discord.Message]: A list of messages in the reply chain, from oldest to newest.
+        bool: a bool signifying if [message] belongs to a thread or not.
+        int: int signifying number of replies in the message reply chain so far. For threads, this is -1.
     """
     reply_chain = []
-    
+
+    if isinstance(message.channel, discord.Thread):
+        reply_chain = get_thread_history(message.channel)
+        return reply_chain, True, -1
+
     # the first message will always be passed to ChatGPT anyway, so skip it by fetching
     # the next newest message in the replies (if it exists).
     current_message = None
@@ -40,7 +56,7 @@ async def fetch_reply_chain(message: discord.Message) -> list[discord.Message]:
             break
 
     # Reverse to get the order from oldest to newest
-    return list(reversed(reply_chain))
+    return list(reversed(reply_chain)), False, len(reply_chain)
 
 def map_reply_chain_to_chatgpt_format(messages: list[discord.Message]) -> list[dict]:
     """
@@ -61,12 +77,17 @@ def map_reply_chain_to_chatgpt_format(messages: list[discord.Message]) -> list[d
         })
     return formatted_messages
 
-async def format_message_coversation(message: discord.Message) -> list[dict]:
+async def format_message_coversation(message: discord.Message) -> tuple[list[dict], bool, int]:
     """
     Fetches a reply chain (if necessary) for message [message] and formats
     into ChatGPT API input.
+
+    Returns:
+        Dict of formatted messages
+        Bool if messages are a thread
+        Int of reply counts, -1 for threads.
     """
-    reply_chain = await fetch_reply_chain(message)
+    reply_chain, is_thread, reply_count = await fetch_reply_chain(message)
     formatted_reply_chain = map_reply_chain_to_chatgpt_format(reply_chain)
-    return formatted_reply_chain
+    return formatted_reply_chain, is_thread, reply_count
 
