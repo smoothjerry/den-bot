@@ -33,7 +33,7 @@ async def fetch_reply_chain(message: discord.Message) -> tuple[list[discord.Mess
     reply_chain = []
 
     if isinstance(message.channel, discord.Thread):
-        reply_chain = get_thread_history(message.channel)
+        reply_chain = await get_thread_history(message.channel)
         return reply_chain, True, -1
 
     # the first message will always be passed to ChatGPT anyway, so skip it by fetching
