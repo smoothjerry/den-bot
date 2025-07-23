@@ -7,10 +7,8 @@ import images
 import messages
 from chatgpt import ChatGPTHandler
 
-# Setup database connection
+# Setup database var
 DATABASE_URL = os.getenv("DATABASE_URL")
-conn = psycopg2.connect(DATABASE_URL)
-cursor = conn.cursor()
 
 # Setup bot
 intents = discord.Intents.default()
@@ -22,6 +20,10 @@ chatbot = ChatGPTHandler(openai_key)
 
 # Constants
 REPLY_LIMIT = 5
+
+# Helper to get DB connection
+def get_db_conn():
+    return psycopg2.connect(DATABASE_URL)
 
 class MyBot(discord.Client):
     def __init__(self):
@@ -40,34 +42,36 @@ bot = MyBot()
 @bot.tree.command(name="updatepoints", description="Add or subtract points for a user.")
 async def update_points(interaction: discord.Interaction, member: discord.Member, points: int):
     user_id = member.id
-    username = str(member)  # Full username (e.g., Username#1234)
-    display_name = member.display_name  # User's display name in the server
+    username = str(member)
+    display_name = member.display_name
 
     try:
-        cursor.execute('SELECT points FROM points WHERE user_id = %s', (user_id,))
-        result = cursor.fetchone()
+        with get_db_conn() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute('SELECT points FROM points WHERE user_id = %s', (user_id,))
+                result = cursor.fetchone()
 
-        if result:
-            new_points = result[0] + points
-            cursor.execute('UPDATE points SET points = %s, display_name = %s WHERE user_id = %s', 
-                           (new_points, display_name, user_id))
-        else:
-            new_points = points
-            cursor.execute('INSERT INTO points (user_id, username, display_name, points) VALUES (%s, %s, %s, %s)', 
-                           (user_id, username, display_name, new_points))
+                if result:
+                    new_points = result[0] + points
+                    cursor.execute('UPDATE points SET points = %s, display_name = %s WHERE user_id = %s',
+                                   (new_points, display_name, user_id))
+                else:
+                    new_points = points
+                    cursor.execute('INSERT INTO points (user_id, username, display_name, points) VALUES (%s, %s, %s, %s)',
+                                   (user_id, username, display_name, new_points))
 
-        conn.commit()  # Commit changes after successful update
         action = "Added" if points > 0 else "Subtracted"
         await interaction.response.send_message(f"{action} {abs(points)} points to {member.mention}. Total: {new_points} points.")
     except Exception as e:
-        conn.rollback()  # Roll back in case of an error
         await interaction.response.send_message(f"An error occurred while updating points: {e}")
 
 @bot.tree.command(name="leaderboard", description="View the leaderboard of den points.")
 async def leaderboard(interaction: discord.Interaction):
     try:
-        cursor.execute('SELECT user_id, points FROM points ORDER BY points DESC')
-        rows = cursor.fetchall()
+        with get_db_conn() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute('SELECT user_id, points FROM points ORDER BY points DESC')
+                rows = cursor.fetchall()
 
         if not rows:
             await interaction.response.send_message("No points have been awarded yet!")
@@ -76,8 +80,8 @@ async def leaderboard(interaction: discord.Interaction):
         leaderboard = "\n".join([f"<@{row[0]}>: {row[1]} points" for row in rows])
         await interaction.response.send_message(f"**Den Points Leaderboard:**\n{leaderboard}")
     except Exception as e:
-        conn.rollback()  # Roll back in case of an error
         await interaction.response.send_message(f"An error occurred while fetching the leaderboard: {e}")
+
 
 @bot.event
 async def on_message(message: discord.Message):
