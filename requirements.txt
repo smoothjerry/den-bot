@@ -47,9 +47,6 @@ pandocfilters==1.5.1
 parso==0.8.4
 pexpect==4.9.0
 pickleshare==0.7.5
-pinecone==5.4.2
-pinecone-plugin-inference
-pinecone-plugin-interface==0.0.7
 pip-autoremove==0.10.0
 pipreqs==0.5.0
 platformdirs==4.3.6
