@@ -10,7 +10,7 @@ CHAIN_LIMIT = 10 # limit of how many replies to fetch. controlling tokens to Ope
 
 async def get_thread_history(thread: discord.Thread):
     """
-    Fetches up to CHAIN_LIMIT messages from a Discord thread. 
+    Fetches up to CHAIN_LIMIT messages from a Discord thread.
     """
     messages = []
     async for message in thread.history(limit=CHAIN_LIMIT):
@@ -19,7 +19,7 @@ async def get_thread_history(thread: discord.Thread):
 
 async def fetch_reply_chain(message: discord.Message) -> tuple[list[discord.Message], bool, int]:
     """
-    Fetch a chain of replies starting from a given message. If this message belongs to a thread, will 
+    Fetch a chain of replies starting from a given message. If this message belongs to a thread, will
     get the thread history.
 
     Args:
@@ -90,4 +90,3 @@ async def format_message_coversation(message: discord.Message) -> tuple[list[dic
     reply_chain, is_thread, reply_count = await fetch_reply_chain(message)
     formatted_reply_chain = map_reply_chain_to_chatgpt_format(reply_chain)
     return formatted_reply_chain, is_thread, reply_count
-

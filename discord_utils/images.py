@@ -1,5 +1,6 @@
 import discord
 
+
 def format_attachment_data(message: discord.Message):
     """
     Format image data from a discord message into image URL messages for OpenAI.
@@ -19,9 +20,9 @@ def format_attachment_data(message: discord.Message):
                         "url": attachment.url,
                     },
                 }
-        
+
         image_data.append(query_data)
-    
+
     # prepend a general query that will instruct the model to interpret the images and
     # use that as part of its response.
     if image_data:
