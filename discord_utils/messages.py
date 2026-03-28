@@ -6,7 +6,7 @@ For example: retrieving chain of message replies.
 
 import discord
 
-CHAIN_LIMIT = 10 # limit of how many replies to fetch. controlling tokens to OpenAI & processing time.
+CHAIN_LIMIT = 10 # limit of how many replies to fetch. controlling tokens to Claude & processing time.
 
 async def get_thread_history(thread: discord.Thread):
     """
@@ -36,7 +36,7 @@ async def fetch_reply_chain(message: discord.Message) -> tuple[list[discord.Mess
         reply_chain = await get_thread_history(message.channel)
         return reply_chain, True, -1
 
-    # the first message will always be passed to ChatGPT anyway, so skip it by fetching
+    # the first message will always be passed to Claude anyway, so skip it by fetching
     # the next newest message in the replies (if it exists).
     current_message = None
     if message.reference and message.reference.message_id:
@@ -58,15 +58,15 @@ async def fetch_reply_chain(message: discord.Message) -> tuple[list[discord.Mess
     # Reverse to get the order from oldest to newest
     return list(reversed(reply_chain)), False, len(reply_chain)
 
-def map_reply_chain_to_chatgpt_format(messages: list[discord.Message]) -> list[dict]:
+def map_reply_chain_to_api_format(messages: list[discord.Message]) -> list[dict]:
     """
-    Map a reply chain to the ChatGPT API format.
+    Map a reply chain to the Claude API message format.
 
     Args:
         messages (List[discord.Message]): A list of Discord messages.
 
     Returns:
-        List[dict]: Formatted messages for ChatGPT.
+        List[dict]: Formatted messages for Claude.
     """
     formatted_messages = []
     for message in messages:
@@ -80,7 +80,7 @@ def map_reply_chain_to_chatgpt_format(messages: list[discord.Message]) -> list[d
 async def format_message_coversation(message: discord.Message) -> tuple[list[dict], bool, int]:
     """
     Fetches a reply chain (if necessary) for message [message] and formats
-    into ChatGPT API input.
+    into Claude API input.
 
     Returns:
         Dict of formatted messages
@@ -88,5 +88,5 @@ async def format_message_coversation(message: discord.Message) -> tuple[list[dic
         Int of reply counts, -1 for threads.
     """
     reply_chain, is_thread, reply_count = await fetch_reply_chain(message)
-    formatted_reply_chain = map_reply_chain_to_chatgpt_format(reply_chain)
+    formatted_reply_chain = map_reply_chain_to_api_format(reply_chain)
     return formatted_reply_chain, is_thread, reply_count
