@@ -3,25 +3,24 @@ import discord
 
 def format_attachment_data(message: discord.Message):
     """
-    Format image data from a discord message into image URL messages for OpenAI.
-    Use array of image URLs.
+    Format image data from a discord message into image content blocks for Claude.
+    Use array of image source URLs.
 
     Returns empty list if there are no images.
     """
-    # Check if the message contains attachments
     image_data = []
     if message.attachments:
         for attachment in message.attachments:
             # Process only supports image types
             if attachment.content_type and "image" in attachment.content_type:
                 query_data = {
-                    "type": "image_url",
-                    "image_url": {
+                    "type": "image",
+                    "source": {
+                        "type": "url",
                         "url": attachment.url,
                     },
                 }
-
-        image_data.append(query_data)
+                image_data.append(query_data)
 
     # prepend a general query that will instruct the model to interpret the images and
     # use that as part of its response.

@@ -1,1 +1,1 @@
-from ai.chatgpt import ChatGPTHandler
+from ai.claude import ClaudeHandler
