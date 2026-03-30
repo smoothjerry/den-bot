@@ -8,8 +8,7 @@ class PointsRepository:
 
         Returns the new point total.
         """
-        conn = self.db.get_conn()
-        try:
+        with self.db.connection() as conn:
             with conn:
                 with conn.cursor() as cursor:
                     cursor.execute('SELECT points FROM points WHERE user_id = %s', (user_id,))
@@ -27,8 +26,6 @@ class PointsRepository:
                             'INSERT INTO points (user_id, username, display_name, points) VALUES (%s, %s, %s, %s)',
                             (user_id, username, display_name, new_points)
                         )
-        finally:
-            self.db.put_conn(conn)
 
         return new_points
 
@@ -36,11 +33,8 @@ class PointsRepository:
         """
         Returns list of (user_id, points) tuples ordered by points descending.
         """
-        conn = self.db.get_conn()
-        try:
+        with self.db.connection() as conn:
             with conn:
                 with conn.cursor() as cursor:
                     cursor.execute('SELECT user_id, points FROM points ORDER BY points DESC')
                     return cursor.fetchall()
-        finally:
-            self.db.put_conn(conn)
