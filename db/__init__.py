@@ -1,1 +1,1 @@
-from db.points import PointsRepository
+from db.connection import Database

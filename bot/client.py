@@ -1,7 +1,7 @@
 import discord
 
 from discord_utils import format_attachment_data, format_message_coversation
-from bot.commands import register_points_commands
+from points import register_points_commands
 
 REPLY_LIMIT = 5
 

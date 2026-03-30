@@ -1,12 +1,14 @@
 import os
 
 from ai import ClaudeHandler
-from db import PointsRepository
+from db import Database
+from points import PointsRepository
 from bot import create_bot
 
 # Initialize dependencies
 chatbot = ClaudeHandler(os.getenv("ANTHROPIC_API_KEY"))
-points_repo = PointsRepository(os.getenv("DATABASE_URL"))
+db = Database(os.getenv("DATABASE_URL"))
+points_repo = PointsRepository(db)
 
 # Create and run the bot
 bot = create_bot(chatbot, points_repo)
