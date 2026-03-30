@@ -1,3 +1,10 @@
+from pathlib import Path
+
+import aiosql
+
+queries = aiosql.from_path(Path(__file__).parent / "sql", "psycopg2")
+
+
 class PointsRepository:
     def __init__(self, db):
         self.db = db
@@ -8,22 +15,15 @@ class PointsRepository:
 
         Returns the new point total.
         """
-        with self.db.connection() as cursor:
-            cursor.execute('SELECT points FROM points WHERE user_id = %s', (user_id,))
-            result = cursor.fetchone()
+        with self.db.connection() as conn:
+            result = queries.get_user_points(conn, user_id=user_id)
 
             if result:
                 new_points = result[0] + points
-                cursor.execute(
-                    'UPDATE points SET points = %s, display_name = %s WHERE user_id = %s',
-                    (new_points, display_name, user_id)
-                )
+                queries.update_user_points(conn, points=new_points, display_name=display_name, user_id=user_id)
             else:
                 new_points = points
-                cursor.execute(
-                    'INSERT INTO points (user_id, username, display_name, points) VALUES (%s, %s, %s, %s)',
-                    (user_id, username, display_name, new_points)
-                )
+                queries.insert_user(conn, user_id=user_id, username=username, display_name=display_name, points=new_points)
 
         return new_points
 
@@ -31,6 +31,5 @@ class PointsRepository:
         """
         Returns list of (user_id, points) tuples ordered by points descending.
         """
-        with self.db.connection() as cursor:
-            cursor.execute('SELECT user_id, points FROM points ORDER BY points DESC')
-            return cursor.fetchall()
+        with self.db.connection() as conn:
+            return queries.get_leaderboard(conn)
