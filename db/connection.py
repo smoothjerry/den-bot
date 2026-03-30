@@ -12,8 +12,7 @@ class Database:
         conn = self.pool.getconn()
         try:
             with conn:
-                with conn.cursor() as cursor:
-                    yield cursor
+                yield conn
         finally:
             self.pool.putconn(conn)
 
