@@ -1,14 +1,20 @@
-from unittest.mock import patch
+from unittest.mock import patch, AsyncMock, MagicMock
 
 import pytest
 
 from ai.claude import ClaudeHandler
+from ai.config import DENJAMIN_SYSTEM_PROMPT
 
 
 @pytest.fixture
 def handler():
     with patch("ai.claude.AsyncAnthropic"):
-        return ClaudeHandler(api_key="fake-key")
+        h = ClaudeHandler(api_key="fake-key")
+    # Replace the client.messages.create with an AsyncMock after construction
+    mock_response = MagicMock()
+    mock_response.content = [MagicMock(text="bot reply")]
+    h.client.messages.create = AsyncMock(return_value=mock_response)
+    return h
 
 
 class TestCoalesceMessages:
@@ -89,3 +95,65 @@ class TestCoalesceMessages:
         # Second message is dropped because same-role branch doesn't append on isinstance failure
         assert len(result) == 1
         assert result[0]["content"] is image_block
+
+
+class TestGenerateResponse:
+    async def test_basic_response(self, handler):
+        result = await handler.generate_response("hi", None, [])
+        assert result == "bot reply"
+        handler.client.messages.create.assert_called_once()
+        call_kwargs = handler.client.messages.create.call_args.kwargs
+        assert call_kwargs["messages"] == [{"role": "user", "content": "hi"}]
+        assert call_kwargs["system"] == DENJAMIN_SYSTEM_PROMPT
+
+    async def test_with_conversation_context(self, handler):
+        context = [
+            {"role": "user", "content": "earlier"},
+            {"role": "assistant", "content": "response"},
+        ]
+        await handler.generate_response("follow up", context, [])
+        call_kwargs = handler.client.messages.create.call_args.kwargs
+        messages = call_kwargs["messages"]
+        assert len(messages) == 3
+        assert messages[0]["content"] == "earlier"
+        assert messages[1]["content"] == "response"
+        assert messages[2]["content"] == "follow up"
+
+    async def test_with_image_data(self, handler):
+        image_data = [{"type": "image", "source": {"type": "url", "url": "http://example.com/img.png"}}]
+        await handler.generate_response("describe this", None, image_data)
+        call_kwargs = handler.client.messages.create.call_args.kwargs
+        messages = call_kwargs["messages"]
+        content = messages[0]["content"]
+        assert isinstance(content, list)
+        assert content[0] == {"type": "text", "text": "describe this"}
+        assert content[1] == image_data[0]
+
+    async def test_with_context_and_images(self, handler):
+        context = [{"role": "assistant", "content": "hi there"}]
+        image_data = [{"type": "image", "source": {"type": "url", "url": "http://example.com/img.png"}}]
+        await handler.generate_response("look at this", context, image_data)
+        call_kwargs = handler.client.messages.create.call_args.kwargs
+        messages = call_kwargs["messages"]
+        assert len(messages) == 2
+        assert messages[0]["content"] == "hi there"
+        assert isinstance(messages[1]["content"], list)
+
+    async def test_api_error_returns_error_string(self, handler):
+        handler.client.messages.create = AsyncMock(side_effect=Exception("API down"))
+        result = await handler.generate_response("hi", None, [])
+        assert result == "Error: API down"
+
+    async def test_coalescing_applied(self, handler):
+        context = [{"role": "user", "content": "first message"}]
+        await handler.generate_response("second message", context, [])
+        call_kwargs = handler.client.messages.create.call_args.kwargs
+        messages = call_kwargs["messages"]
+        # Two consecutive user messages should be coalesced into one
+        assert len(messages) == 1
+        assert messages[0]["content"] == "first message\nsecond message"
+
+    async def test_default_model(self, handler):
+        await handler.generate_response("hi", None, [])
+        call_kwargs = handler.client.messages.create.call_args.kwargs
+        assert call_kwargs["model"] == "claude-sonnet-4-20250514"
