@@ -1,5 +1,13 @@
+from unittest.mock import MagicMock, AsyncMock, patch
+
+# Patch aiosql.from_path before any test module imports points.repository,
+# which calls aiosql.from_path at module level. The locally installed aiosql
+# version may be incompatible with the project's SQL syntax, so we replace
+# the call with a MagicMock to avoid parse errors during test collection.
+_aiosql_patcher = patch("aiosql.from_path", return_value=MagicMock())
+_aiosql_patcher.start()
+
 import pytest
-from unittest.mock import MagicMock, AsyncMock
 
 
 class AsyncIteratorMock:
