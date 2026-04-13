@@ -1,6 +1,6 @@
 # Denjamin
 
-A Discord bot that brings AI-powered chat (via Claude) and a points/leaderboard system to your server. Mention Denjamin in a channel and it will respond with its unique personality — it supports text, images, and threaded conversations.
+This is a discord bot that will help you and your friends increase your denliness! Denjamin brings AI-powered chat (via Claude) and a points/leaderboard system to your server. Mention him in a channel and he'll respond with his unique personality — he supports text, images, and threaded conversations.
 
 ## Prerequisites
 
