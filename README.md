@@ -59,6 +59,30 @@ This is a discord bot that will help you and your friends increase your denlines
 
    The bot connects outbound to Discord's websocket gateway — no port forwarding or tunnels needed.
 
+## Docker
+
+Instead of installing PostgreSQL locally, you can use Docker:
+
+**Start Postgres for local dev** (bot runs on your machine):
+
+```bash
+docker-compose up -d
+```
+
+This starts Postgres on `localhost:5432` and auto-creates the `points` table. Set your `DATABASE_URL` to `postgresql://denbot:denbot@localhost:5432/denbot`.
+
+**Run everything in containers** (Postgres + bot):
+
+```bash
+docker-compose --profile bot up
+```
+
+**Tear down and remove data:**
+
+```bash
+docker-compose down -v
+```
+
 ## Creating a Discord Test Bot
 
 1. Go to the [Discord Developer Portal](https://discord.com/developers/applications) and click **New Application**
