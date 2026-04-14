@@ -1,5 +1,8 @@
 import os
 
+from dotenv import load_dotenv
+load_dotenv()
+
 from ai import ClaudeHandler
 from db import Database
 from points import PointsRepository
