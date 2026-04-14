@@ -8,6 +8,7 @@ class TestDatabase:
     def test_connection_yields_and_returns(self, mock_pool_cls):
         mock_pool = MagicMock()
         mock_conn = MagicMock()
+        mock_conn.closed = 0
         mock_pool.getconn.return_value = mock_conn
         mock_pool_cls.return_value = mock_pool
 
