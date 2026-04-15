@@ -1,27 +1,53 @@
+import logging
+
 import discord
 
 from discord_utils import format_attachment_data, format_message_coversation
 from points import register_points_commands
 
+logger = logging.getLogger(__name__)
+
 REPLY_LIMIT = 5
 
 
 class MyBot(discord.Client):
-    def __init__(self, chatbot, points_repo):
+    def __init__(self, chatbot, points_repo, db):
         intents = discord.Intents.default()
         intents.message_content = True
         super().__init__(intents=intents)
         self.tree = discord.app_commands.CommandTree(self)
         self.chatbot = chatbot
+        self.db = db
 
         register_points_commands(self, points_repo)
+
+    async def setup_hook(self):
+        logger.info("Bot starting up, verifying database connectivity...")
+        try:
+            with self.db.connection() as conn:
+                cur = conn.cursor()
+                cur.execute("SELECT 1")
+                cur.close()
+            logger.info("Database connectivity verified.")
+        except Exception:
+            logger.exception("Database connectivity check failed during startup")
 
     async def on_ready(self):
         try:
             await self.tree.sync()
-            print(f"Logged in as {self.user} and synced commands!")
+            logger.info("Logged in as %s and synced commands!", self.user)
         except Exception as e:
-            print(f"Failed to sync commands: {e}")
+            logger.error("Failed to sync commands: %s", e)
+
+    async def close(self):
+        logger.info("Shutdown initiated, cleaning up resources...")
+        try:
+            self.db.close()
+            logger.info("Database pool closed.")
+        except Exception:
+            logger.exception("Error closing database pool")
+        await super().close()
+        logger.info("Discord client closed.")
 
     async def on_message(self, message):
         # Ignore messages from the bot itself
@@ -53,5 +79,5 @@ class MyBot(discord.Client):
                 await message.channel.send(f"Error: {e}")
 
 
-def create_bot(chatbot, points_repo):
-    return MyBot(chatbot, points_repo)
+def create_bot(chatbot, points_repo, db):
+    return MyBot(chatbot, points_repo, db)
