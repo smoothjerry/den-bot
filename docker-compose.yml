@@ -88,6 +88,11 @@ services:
       # the Temporal server over the compose network.
       TEMPORAL_ADDRESS: temporal:7233
     stop_grace_period: 10s
+    # The Python client retries transient connect failures for ~2 minutes.
+    # `unless-stopped` ensures Docker restarts the worker if that budget is
+    # exhausted (e.g. Temporal takes longer than expected to come up), and
+    # also handles crashes from unexpected errors.
+    restart: unless-stopped
     depends_on:
       - temporal
     profiles:
