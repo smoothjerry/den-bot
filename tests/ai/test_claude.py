@@ -82,19 +82,17 @@ class TestCoalesceMessages:
         assert msgs[1] == original_second
 
     def test_non_string_content_not_merged(self, handler):
-        """When both consecutive same-role messages have string content, they merge.
-        When either has non-string content (e.g. image blocks), the isinstance check
-        prevents merging — but the current implementation also drops the second message
-        since it's neither merged nor appended. This test documents that behavior."""
+        """When consecutive same-role messages can't be string-merged (e.g. one has
+        image blocks), both messages are preserved rather than silently dropped."""
         image_block = [{"type": "image", "source": {"type": "url", "url": "http://example.com/img.png"}}]
         msgs = [
             {"role": "user", "content": image_block},
             {"role": "user", "content": "describe it"},
         ]
         result = handler._coalesce_messages(msgs)
-        # Second message is dropped because same-role branch doesn't append on isinstance failure
-        assert len(result) == 1
+        assert len(result) == 2
         assert result[0]["content"] is image_block
+        assert result[1]["content"] == "describe it"
 
 
 class TestGenerateResponse:

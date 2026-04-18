@@ -57,6 +57,8 @@ class ClaudeHandler:
                 new_content = msg["content"]
                 if isinstance(prev_content, str) and isinstance(new_content, str):
                     coalesced[-1]["content"] = prev_content + "\n" + new_content
+                else:
+                    coalesced.append(msg.copy())
             else:
                 coalesced.append(msg.copy())
         return coalesced
