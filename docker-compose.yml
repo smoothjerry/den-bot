@@ -26,5 +26,73 @@ services:
     profiles:
       - bot
 
+  # ----- Temporal stack (opt-in via --profile temporal) -----
+  # Dedicated Postgres for Temporal's persistence. Kept isolated from the app
+  # `db` service so Temporal schema upgrades don't touch application data.
+  temporal-postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: temporal
+      POSTGRES_PASSWORD: temporal
+      POSTGRES_DB: temporal
+    volumes:
+      - temporal-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U temporal"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    profiles:
+      - temporal
+
+  # Temporal server in "auto-setup" mode — creates the default namespace and
+  # schema on first boot. Fine for dev; for prod we recommend splitting into
+  # frontend/history/matching/internal-frontend services (see README).
+  temporal:
+    image: temporalio/auto-setup:1.25.2.0
+    environment:
+      DB: postgres12
+      DB_PORT: 5432
+      POSTGRES_USER: temporal
+      POSTGRES_PWD: temporal
+      POSTGRES_SEEDS: temporal-postgres
+    ports:
+      - "7233:7233"
+    depends_on:
+      temporal-postgres:
+        condition: service_healthy
+    profiles:
+      - temporal
+
+  # Web UI at http://localhost:8080
+  temporal-ui:
+    image: temporalio/ui:2.31.2
+    environment:
+      TEMPORAL_ADDRESS: temporal:7233
+      TEMPORAL_CORS_ORIGINS: http://localhost:3000
+    ports:
+      - "8080:8080"
+    depends_on:
+      - temporal
+    profiles:
+      - temporal
+
+  # Worker process: same image as `bot`, different entrypoint. In prod this is
+  # the deployable you scale horizontally when workflow throughput grows.
+  temporal-worker:
+    build: .
+    env_file: .env
+    command: python temporal_worker.py
+    environment:
+      # Override the host-facing default from .env so the worker reaches
+      # the Temporal server over the compose network.
+      TEMPORAL_ADDRESS: temporal:7233
+    stop_grace_period: 10s
+    depends_on:
+      - temporal
+    profiles:
+      - temporal
+
 volumes:
   pgdata:
+  temporal-pgdata:

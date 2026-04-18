@@ -83,6 +83,53 @@ docker-compose --profile bot up
 docker-compose down -v
 ```
 
+## Temporal (workflow orchestration)
+
+Denjamin ships with an opt-in Temporal stack for durable workflow execution. Temporal is gated behind a docker-compose profile so it only runs when you ask for it.
+
+**Bring up the full Temporal stack** (server, UI, its own Postgres, and a worker):
+
+```bash
+docker-compose --profile temporal up
+```
+
+- gRPC frontend: `localhost:7233`
+- Web UI: [http://localhost:8080](http://localhost:8080)
+
+**Run just Temporal without the bot or worker** (useful when developing workflows from a REPL):
+
+```bash
+docker-compose up temporal temporal-ui temporal-postgres
+```
+
+**Enable the Temporal client in the bot** by setting `TEMPORAL_ADDRESS` in your `.env`:
+
+```
+TEMPORAL_ADDRESS=localhost:7233
+TEMPORAL_NAMESPACE=default
+TEMPORAL_TASK_QUEUE=denjamin-main
+```
+
+Leave `TEMPORAL_ADDRESS` blank to disable Temporal entirely — the bot will run as before.
+
+**Run the worker locally** (instead of in a container):
+
+```bash
+python temporal_worker.py
+```
+
+The worker and the Discord bot ship from the **same Docker image**; only the entrypoint differs. Scale workers horizontally in production by running more `temporal-worker` containers — Temporal distributes task-queue work across them automatically.
+
+### Production notes (self-hosted)
+
+The `temporalio/auto-setup` image we use for dev is explicitly not recommended by Temporal for production. For a productionized self-hosted deployment (e.g., on a Raspberry Pi 4/5 or similar single-node host):
+
+- Replace `auto-setup` with separate `frontend`, `history`, `matching`, and `internal-frontend` services using the `temporalio/server` image, and run `temporalio/admin-tools` once as a schema-setup job.
+- Keep Temporal's Postgres isolated from the application's Postgres (this repo's compose already does).
+- Set `TEMPORAL_TLS_CERT_PATH` / `TEMPORAL_TLS_KEY_PATH` and mount mTLS certs if the worker/client traverse an untrusted network; plaintext gRPC is fine when everything runs on the same private bridge network.
+- Expected resource baseline: ~700MB–1GB RAM idle for the Temporal services + their Postgres. A Pi 4 with 4GB+ or Pi 5 is recommended; Pi Zero will not work.
+- All `temporalio/*` images publish `linux/arm64` variants, so ARM hosts are supported.
+
 ## Creating a Discord Test Bot
 
 1. Go to the [Discord Developer Portal](https://discord.com/developers/applications) and click **New Application**

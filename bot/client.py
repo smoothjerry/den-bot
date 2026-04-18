@@ -11,13 +11,17 @@ REPLY_LIMIT = 5
 
 
 class MyBot(discord.Client):
-    def __init__(self, chatbot, points_repo, db):
+    def __init__(self, chatbot, points_repo, db, temporal_config=None):
         intents = discord.Intents.default()
         intents.message_content = True
         super().__init__(intents=intents)
         self.tree = discord.app_commands.CommandTree(self)
         self.chatbot = chatbot
         self.db = db
+        self.temporal_config = temporal_config
+        # Populated lazily in setup_hook(); None means Temporal is disabled
+        # or the initial connection failed.
+        self.temporal_client = None
 
         register_points_commands(self, points_repo)
 
@@ -31,6 +35,25 @@ class MyBot(discord.Client):
             logger.info("Database connectivity verified.")
         except Exception:
             logger.exception("Database connectivity check failed during startup")
+
+        if self.temporal_config is not None:
+            # Import lazily so the bot doesn't require the temporal package
+            # at import time if the feature is off.
+            from temporal.client import get_client
+
+            try:
+                self.temporal_client = await get_client(self.temporal_config)
+                logger.info(
+                    "Temporal client connected address=%s namespace=%s",
+                    self.temporal_config.address,
+                    self.temporal_config.namespace,
+                )
+            except Exception:
+                logger.exception(
+                    "Failed to connect Temporal client; bot will continue without it"
+                )
+        else:
+            logger.info("Temporal disabled (no TEMPORAL_ADDRESS configured).")
 
     async def on_ready(self):
         try:
@@ -79,5 +102,5 @@ class MyBot(discord.Client):
                 await message.channel.send(f"Error: {e}")
 
 
-def create_bot(chatbot, points_repo, db):
-    return MyBot(chatbot, points_repo, db)
+def create_bot(chatbot, points_repo, db, temporal_config=None):
+    return MyBot(chatbot, points_repo, db, temporal_config=temporal_config)
