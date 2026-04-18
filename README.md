@@ -61,46 +61,19 @@ This is a discord bot that will help you and your friends increase your denlines
 
 ## Docker
 
-Instead of installing PostgreSQL locally, you can use Docker:
+Instead of installing PostgreSQL locally, you can run Postgres (and optionally the bot itself) in Docker. See [DOCKER.md](DOCKER.md) for the full command reference — it covers lifecycle, rebuilds, volumes, psql access, and troubleshooting.
 
-**Start Postgres for local dev** (bot runs on your machine):
-
-```bash
-docker-compose up -d
-```
-
-This starts Postgres on `localhost:5432` and auto-creates the `points` table. Set your `DATABASE_URL` to `postgresql://denbot:denbot@localhost:5432/denbot`.
-
-**Run everything in containers** (Postgres + bot):
+Quickstart — start Postgres in the background and run the bot on your host:
 
 ```bash
-docker-compose --profile bot up
+docker compose up -d
 ```
 
-**Tear down and remove data:**
-
-```bash
-docker-compose down -v
-```
+Then set `DATABASE_URL=postgresql://denbot:denbot@localhost:5432/denbot` in your `.env`.
 
 ## Temporal (workflow orchestration)
 
-Denjamin ships with an opt-in Temporal stack for durable workflow execution. Temporal is gated behind a docker-compose profile so it only runs when you ask for it.
-
-**Bring up the full Temporal stack** (server, UI, its own Postgres, and a worker):
-
-```bash
-docker-compose --profile temporal up
-```
-
-- gRPC frontend: `localhost:7233`
-- Web UI: [http://localhost:8080](http://localhost:8080)
-
-**Run just Temporal without the bot or worker** (useful when developing workflows from a REPL):
-
-```bash
-docker-compose up temporal temporal-ui temporal-postgres
-```
+Denjamin ships with an opt-in Temporal stack for durable workflow execution, gated behind a `temporal` compose profile. See [DOCKER.md](DOCKER.md) for how to bring it up; the rest of this section is config and production notes.
 
 **Enable the Temporal client in the bot** by setting `TEMPORAL_ADDRESS` in your `.env`:
 
