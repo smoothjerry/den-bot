@@ -1,3 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["ai", "bot", "db", "discord_utils", "points", "temporal"]
+py-modules = ["denjamin", "temporal_worker"]
+
+[project]
+name = "den-bot"
+version = "0.1.0"
+description = "Denjamin — a Discord bot with Claude-powered chat and a points/leaderboard system."
+requires-python = ">=3.12"
+dependencies = [
+    "discord.py>=2.4.0",
+    "anthropic>=0.42.0",
+    "psycopg2-binary>=2.9.10",
+    "aiosql>=9.0",
+    "temporalio>=1.9.0",
+    "python-dotenv>=1.0",
+]
+
+[project.scripts]
+denjamin = "denjamin:main"
+temporal-worker = "temporal_worker:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ipython>=8.12",
+]
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]

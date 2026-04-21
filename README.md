@@ -4,7 +4,8 @@ This is a discord bot that will help you and your friends increase your denlines
 
 ## Prerequisites
 
-- Python 3.x
+- Python 3.12+
+- [uv](https://docs.astral.sh/uv/) — install via `curl -LsSf https://astral.sh/uv/install.sh | sh`
 - PostgreSQL (local install or via Docker)
 - A Discord bot token ([Developer Portal](https://discord.com/developers/applications))
 - An Anthropic API key ([console.anthropic.com](https://console.anthropic.com))
@@ -18,20 +19,15 @@ This is a discord bot that will help you and your friends increase your denlines
    cd den-bot
    ```
 
-2. **Create and activate a virtual environment**
+2. **Install dependencies**
 
    ```bash
-   python -m venv venv
-   source venv/bin/activate
+   uv sync
    ```
 
-3. **Install dependencies**
+   This creates a `.venv/` and installs the exact versions pinned in `uv.lock`. Add `--group dev` if you plan to run tests or use dev tools like `ipython`.
 
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Configure environment variables**
+3. **Configure environment variables**
 
    ```bash
    cp .env.example .env
@@ -39,22 +35,22 @@ This is a discord bot that will help you and your friends increase your denlines
 
    Open `.env` and fill in your `BOT_TOKEN`, `DATABASE_URL`, and `ANTHROPIC_API_KEY`.
 
-5. **Start PostgreSQL and create a database**
+4. **Start PostgreSQL and create a database**
 
    ```bash
    createdb denbot
    ```
 
-6. **Run the schema**
+5. **Run the schema**
 
    ```bash
    psql -d denbot -f db/schema.sql
    ```
 
-7. **Run the bot**
+6. **Run the bot**
 
    ```bash
-   python denjamin.py
+   uv run denjamin
    ```
 
    The bot connects outbound to Discord's websocket gateway — no port forwarding or tunnels needed.
@@ -88,7 +84,7 @@ Leave `TEMPORAL_ADDRESS` blank to disable Temporal entirely — the bot will run
 **Run the worker locally** (instead of in a container):
 
 ```bash
-python temporal_worker.py
+uv run temporal-worker
 ```
 
 The worker and the Discord bot ship from the **same Docker image**; only the entrypoint differs. Scale workers horizontally in production by running more `temporal-worker` containers — Temporal distributes task-queue work across them automatically.
@@ -117,7 +113,7 @@ The `temporalio/auto-setup` image we use for dev is explicitly not recommended b
 ## Running Tests
 
 ```bash
-pytest
+uv run pytest
 ```
 
-Tests use mocked Discord, database, and Anthropic connections — no real services needed.
+Tests use mocked Discord, database, and Anthropic connections — no real services needed. If you haven't installed dev deps yet, run `uv sync --group dev` first.

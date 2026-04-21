@@ -21,7 +21,7 @@ Services without a profile start by default. Profiled services only start when y
 
 ## Common workflows
 
-### Just Postgres (bot runs locally via `python denjamin.py`)
+### Just Postgres (bot runs locally via `uv run denjamin`)
 
 ```bash
 docker compose up -d                  # start db in background
@@ -60,13 +60,13 @@ docker compose up -d temporal temporal-ui temporal-postgres
 
 ## Rebuilding after code or dependency changes
 
-The `bot` and `temporal-worker` services share one image built from the [Dockerfile](Dockerfile). Anything that changes `requirements.txt` or application code means a rebuild.
+The `bot` and `temporal-worker` services share one image built from the [Dockerfile](Dockerfile). Anything that changes `pyproject.toml`, `uv.lock`, or application code means a rebuild.
 
 ```bash
 docker compose build                        # rebuild all buildable services
 docker compose build bot                    # rebuild just one
 docker compose --profile bot up --build     # rebuild then start
-docker compose build --no-cache bot         # force full rebuild (slow; for pip weirdness)
+docker compose build --no-cache bot         # force full rebuild (slow; for dep-resolution weirdness)
 ```
 
 ## Inspecting running services
