@@ -44,7 +44,7 @@ This is a discord bot that will help you and your friends increase your denlines
 5. **Run the schema**
 
    ```bash
-   psql -d denbot -f db/schema.sql
+   psql -d denbot -f src/denbot/db/schema.sql
    ```
 
 6. **Run the bot**

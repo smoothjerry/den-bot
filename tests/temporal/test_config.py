@@ -1,6 +1,6 @@
 import pytest
 
-from temporal.config import (
+from denbot.temporal.config import (
     DEFAULT_ADDRESS,
     DEFAULT_NAMESPACE,
     DEFAULT_TASK_QUEUE,

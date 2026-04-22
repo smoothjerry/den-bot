@@ -3,7 +3,7 @@ from unittest.mock import patch, AsyncMock, MagicMock
 import discord
 import pytest
 
-from bot.client import MyBot, create_bot, REPLY_LIMIT
+from denbot.bot.client import MyBot, create_bot, REPLY_LIMIT
 
 
 @pytest.fixture
@@ -13,7 +13,7 @@ def bot_and_mocks():
     mock_points_repo = MagicMock()
     mock_db = MagicMock()
 
-    with patch("bot.client.register_points_commands"):
+    with patch("denbot.bot.client.register_points_commands"):
         bot = MyBot(mock_chatbot, mock_points_repo, mock_db)
 
     # discord.Client.user is a read-only property, so we patch it on the class
@@ -43,8 +43,8 @@ class TestOnMessage:
 
         mock_chatbot.generate_response.assert_not_called()
 
-    @patch("bot.client.format_message_coversation", new_callable=AsyncMock)
-    @patch("bot.client.format_attachment_data")
+    @patch("denbot.bot.client.format_message_coversation", new_callable=AsyncMock)
+    @patch("denbot.bot.client.format_attachment_data")
     async def test_replies_in_thread(self, mock_attachments, mock_conversation, bot_and_mocks):
         bot, mock_chatbot, mock_db = bot_and_mocks
         mock_attachments.return_value = []
@@ -61,8 +61,8 @@ class TestOnMessage:
         message.channel.send.assert_called_once_with("bot reply")
         message.reply.assert_not_called()
 
-    @patch("bot.client.format_message_coversation", new_callable=AsyncMock)
-    @patch("bot.client.format_attachment_data")
+    @patch("denbot.bot.client.format_message_coversation", new_callable=AsyncMock)
+    @patch("denbot.bot.client.format_attachment_data")
     async def test_replies_normally_under_limit(self, mock_attachments, mock_conversation, bot_and_mocks):
         bot, mock_chatbot, mock_db = bot_and_mocks
         mock_attachments.return_value = []
@@ -78,8 +78,8 @@ class TestOnMessage:
 
         message.reply.assert_called_once_with("bot reply")
 
-    @patch("bot.client.format_message_coversation", new_callable=AsyncMock)
-    @patch("bot.client.format_attachment_data")
+    @patch("denbot.bot.client.format_message_coversation", new_callable=AsyncMock)
+    @patch("denbot.bot.client.format_attachment_data")
     async def test_creates_thread_over_limit(self, mock_attachments, mock_conversation, bot_and_mocks):
         bot, mock_chatbot, mock_db = bot_and_mocks
         mock_attachments.return_value = []
@@ -101,8 +101,8 @@ class TestOnMessage:
         mock_thread.send.assert_called_once_with("bot reply")
         message.reply.assert_not_called()
 
-    @patch("bot.client.format_message_coversation", new_callable=AsyncMock)
-    @patch("bot.client.format_attachment_data")
+    @patch("denbot.bot.client.format_message_coversation", new_callable=AsyncMock)
+    @patch("denbot.bot.client.format_attachment_data")
     async def test_strips_mention_from_input(self, mock_attachments, mock_conversation, bot_and_mocks):
         bot, mock_chatbot, mock_db = bot_and_mocks
         mock_attachments.return_value = []
@@ -119,8 +119,8 @@ class TestOnMessage:
         call_args = mock_chatbot.generate_response.call_args
         assert call_args[0][0] == "what is a den?"
 
-    @patch("bot.client.format_message_coversation", new_callable=AsyncMock)
-    @patch("bot.client.format_attachment_data")
+    @patch("denbot.bot.client.format_message_coversation", new_callable=AsyncMock)
+    @patch("denbot.bot.client.format_attachment_data")
     async def test_error_sends_to_channel(self, mock_attachments, mock_conversation, bot_and_mocks):
         bot, mock_chatbot, mock_db = bot_and_mocks
         mock_attachments.return_value = []
@@ -155,7 +155,7 @@ class TestClose:
 
 
 class TestCreateBot:
-    @patch("bot.client.register_points_commands")
+    @patch("denbot.bot.client.register_points_commands")
     def test_returns_mybot_instance(self, mock_register):
         bot = create_bot(MagicMock(), MagicMock(), MagicMock())
         assert isinstance(bot, MyBot)

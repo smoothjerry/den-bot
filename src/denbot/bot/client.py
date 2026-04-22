@@ -2,8 +2,8 @@ import logging
 
 import discord
 
-from discord_utils import format_attachment_data, format_message_coversation
-from points import register_points_commands
+from denbot.discord import format_attachment_data, format_message_coversation
+from denbot.points import register_points_commands
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +39,7 @@ class MyBot(discord.Client):
         if self.temporal_config is not None:
             # Import lazily so the bot doesn't require the temporal package
             # at import time if the feature is off.
-            from temporal.client import get_client
+            from denbot.temporal.client import get_client
 
             try:
                 self.temporal_client = await get_client(self.temporal_config)

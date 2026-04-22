@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 import discord
 
-from points.commands import register_points_commands
+from denbot.points.commands import register_points_commands
 
 
 @pytest.fixture

@@ -9,7 +9,7 @@ from datetime import timedelta
 from temporalio import workflow
 
 with workflow.unsafe.imports_passed_through():
-    from temporal.activities import say_hello
+    from denbot.temporal.activities import say_hello
 
 
 @workflow.defn

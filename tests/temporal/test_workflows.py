@@ -10,8 +10,8 @@ import pytest
 from temporalio.testing import WorkflowEnvironment
 from temporalio.worker import Worker
 
-from temporal.activities import say_hello
-from temporal.workflows import HelloWorkflow
+from denbot.temporal.activities import say_hello
+from denbot.temporal.workflows import HelloWorkflow
 
 
 @pytest.mark.asyncio

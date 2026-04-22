@@ -2,13 +2,13 @@ from unittest.mock import patch, AsyncMock, MagicMock
 
 import pytest
 
-from ai.claude import ClaudeHandler
-from ai.config import DENJAMIN_SYSTEM_PROMPT
+from denbot.ai.claude import ClaudeHandler
+from denbot.ai.config import DENJAMIN_SYSTEM_PROMPT
 
 
 @pytest.fixture
 def handler():
-    with patch("ai.claude.AsyncAnthropic"):
+    with patch("denbot.ai.claude.AsyncAnthropic"):
         h = ClaudeHandler(api_key="fake-key")
     # Replace the client.messages.create with an AsyncMock after construction
     mock_response = MagicMock()

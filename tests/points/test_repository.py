@@ -9,17 +9,17 @@ def repo_and_mocks(mock_db):
     db, mock_conn = mock_db
     mock_queries = MagicMock()
 
-    with patch.dict(sys.modules, {"points.repository": None}):
+    with patch.dict(sys.modules, {"denbot.points.repository": None}):
         with patch("aiosql.from_path", return_value=mock_queries):
             # Force re-import so aiosql.from_path is intercepted
-            if "points.repository" in sys.modules:
-                del sys.modules["points.repository"]
+            if "denbot.points.repository" in sys.modules:
+                del sys.modules["denbot.points.repository"]
 
-            from points.repository import PointsRepository
+            from denbot.points.repository import PointsRepository
 
             repo = PointsRepository(db)
             # Bind the mock_queries to the module's queries reference
-            import points.repository as repo_module
+            import denbot.points.repository as repo_module
             repo_module.queries = mock_queries
 
             yield repo, mock_queries, mock_conn

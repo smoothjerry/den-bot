@@ -1,2 +1,0 @@
-from points.repository import PointsRepository
-from points.commands import register_points_commands
