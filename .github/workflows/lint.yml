@@ -14,5 +14,4 @@ jobs:
         with:
           python-version: "3.12"
       - run: uv sync --group dev
-      - run: uv run ruff check src tests
-      - run: uv run ruff format --check src tests
+      - run: make check
