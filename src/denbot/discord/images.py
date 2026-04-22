@@ -1,14 +1,16 @@
+from typing import Any
+
 import discord
 
 
-def format_attachment_data(message: discord.Message):
+def format_attachment_data(message: discord.Message) -> list[dict[str, Any]]:
     """
     Format image data from a discord message into image content blocks for Claude.
     Use array of image source URLs.
 
     Returns empty list if there are no images.
     """
-    image_data = []
+    image_data: list[dict[str, Any]] = []
     if message.attachments:
         for attachment in message.attachments:
             # Process only supports image types
