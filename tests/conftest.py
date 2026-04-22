@@ -1,6 +1,6 @@
-from unittest.mock import MagicMock, AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
-import pytest  # noqa: E402  (import after aiosql patcher is started)
+import pytest
 
 
 class AsyncIteratorMock:
