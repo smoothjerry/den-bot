@@ -117,3 +117,15 @@ uv run pytest
 ```
 
 Tests use mocked Discord, database, and Anthropic connections — no real services needed. If you haven't installed dev deps yet, run `uv sync --group dev` first.
+
+## Linting and formatting
+
+This project uses [ruff](https://docs.astral.sh/ruff/) for linting and formatting.
+
+```bash
+uv run ruff check src tests          # report issues
+uv run ruff check --fix src tests    # auto-fix what it can
+uv run ruff format src tests         # format in place
+```
+
+CI runs `ruff check` and `ruff format --check` on every PR — a style violation fails the build.

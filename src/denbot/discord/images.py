@@ -27,7 +27,10 @@ def format_attachment_data(message: discord.Message):
     if image_data:
         general_image_query = {
             "type": "text",
-            "text": "Analyze what is in this image or series of images and use this info in your response to the other user text prompts.",
+            "text": (
+                "Analyze what is in this image or series of images and use this info"
+                " in your response to the other user text prompts."
+            ),
         }
         image_data.insert(0, general_image_query)
 

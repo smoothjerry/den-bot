@@ -7,7 +7,6 @@ Both the Discord bot process (to start workflows) and the worker process
 import asyncio
 import logging
 from pathlib import Path
-from typing import Optional
 
 from temporalio.client import Client, TLSConfig
 
@@ -24,7 +23,7 @@ _DEFAULT_CONNECT_TIMEOUT_SECONDS = 120.0
 
 
 async def get_client(
-    config: Optional[TemporalConfig] = None,
+    config: TemporalConfig | None = None,
     *,
     connect_timeout_seconds: float = _DEFAULT_CONNECT_TIMEOUT_SECONDS,
 ) -> Client:
@@ -35,7 +34,7 @@ async def get_client(
     """
     config = config or TemporalConfig.from_env()
 
-    tls: "bool | TLSConfig" = False
+    tls: bool | TLSConfig = False
     if config.tls_enabled:
         tls = TLSConfig(
             client_cert=Path(config.tls_cert_path).read_bytes(),

@@ -13,9 +13,9 @@ def main() -> None:
     )
 
     from denbot.ai import ClaudeHandler
+    from denbot.bot import create_bot
     from denbot.db import Database
     from denbot.points import PointsRepository
-    from denbot.bot import create_bot
     from denbot.temporal import TemporalConfig
 
     # Initialize dependencies
@@ -26,7 +26,9 @@ def main() -> None:
     # Temporal is opt-in: only wire it up if TEMPORAL_ADDRESS is set. The actual
     # connection happens asynchronously inside the bot's setup_hook so it lives
     # on the Discord event loop.
-    temporal_config = TemporalConfig.from_env() if os.getenv("TEMPORAL_ADDRESS") else None
+    temporal_config = (
+        TemporalConfig.from_env() if os.getenv("TEMPORAL_ADDRESS") else None
+    )
 
     # Create and run the bot
     bot = create_bot(chatbot, points_repo, db, temporal_config=temporal_config)

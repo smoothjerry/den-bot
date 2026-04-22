@@ -1,4 +1,4 @@
-from unittest.mock import patch, AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -84,7 +84,12 @@ class TestCoalesceMessages:
     def test_non_string_content_not_merged(self, handler):
         """When consecutive same-role messages can't be string-merged (e.g. one has
         image blocks), both messages are preserved rather than silently dropped."""
-        image_block = [{"type": "image", "source": {"type": "url", "url": "http://example.com/img.png"}}]
+        image_block = [
+            {
+                "type": "image",
+                "source": {"type": "url", "url": "http://example.com/img.png"},
+            }
+        ]
         msgs = [
             {"role": "user", "content": image_block},
             {"role": "user", "content": "describe it"},
@@ -118,7 +123,12 @@ class TestGenerateResponse:
         assert messages[2]["content"] == "follow up"
 
     async def test_with_image_data(self, handler):
-        image_data = [{"type": "image", "source": {"type": "url", "url": "http://example.com/img.png"}}]
+        image_data = [
+            {
+                "type": "image",
+                "source": {"type": "url", "url": "http://example.com/img.png"},
+            }
+        ]
         await handler.generate_response("describe this", None, image_data)
         call_kwargs = handler.client.messages.create.call_args.kwargs
         messages = call_kwargs["messages"]
@@ -129,7 +139,12 @@ class TestGenerateResponse:
 
     async def test_with_context_and_images(self, handler):
         context = [{"role": "assistant", "content": "hi there"}]
-        image_data = [{"type": "image", "source": {"type": "url", "url": "http://example.com/img.png"}}]
+        image_data = [
+            {
+                "type": "image",
+                "source": {"type": "url", "url": "http://example.com/img.png"},
+            }
+        ]
         await handler.generate_response("look at this", context, image_data)
         call_kwargs = handler.client.messages.create.call_args.kwargs
         messages = call_kwargs["messages"]

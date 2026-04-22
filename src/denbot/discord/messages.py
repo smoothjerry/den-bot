@@ -6,7 +6,9 @@ For example: retrieving chain of message replies.
 
 import discord
 
-CHAIN_LIMIT = 10 # limit of how many replies to fetch. controlling tokens to Claude & processing time.
+# Cap on fetched replies, to control tokens sent to Claude and processing time.
+CHAIN_LIMIT = 10
+
 
 async def get_thread_history(thread: discord.Thread):
     """
@@ -17,18 +19,23 @@ async def get_thread_history(thread: discord.Thread):
         messages.append(message)
     return messages
 
-async def fetch_reply_chain(message: discord.Message) -> tuple[list[discord.Message], bool, int]:
+
+async def fetch_reply_chain(
+    message: discord.Message,
+) -> tuple[list[discord.Message], bool, int]:
     """
-    Fetch a chain of replies starting from a given message. If this message belongs to a thread, will
-    get the thread history.
+    Fetch a chain of replies starting from a given message. If this message
+    belongs to a thread, will get the thread history.
 
     Args:
         message (discord.Message): The starting message.
 
     Returns:
-        list[discord.Message]: A list of messages in the reply chain, from oldest to newest.
+        list[discord.Message]: A list of messages in the reply chain, from
+            oldest to newest.
         bool: a bool signifying if [message] belongs to a thread or not.
-        int: int signifying number of replies in the message reply chain so far. For threads, this is -1.
+        int: int signifying number of replies in the message reply chain so
+            far. For threads, this is -1.
     """
     reply_chain = []
 
@@ -58,6 +65,7 @@ async def fetch_reply_chain(message: discord.Message) -> tuple[list[discord.Mess
     # Reverse to get the order from oldest to newest
     return list(reversed(reply_chain)), False, len(reply_chain)
 
+
 def map_reply_chain_to_api_format(messages: list[discord.Message]) -> list[dict]:
     """
     Map a reply chain to the Claude API message format.
@@ -71,13 +79,13 @@ def map_reply_chain_to_api_format(messages: list[discord.Message]) -> list[dict]
     formatted_messages = []
     for message in messages:
         role = "user" if not message.author.bot else "assistant"
-        formatted_messages.append({
-            "role": role,
-            "content": message.content
-        })
+        formatted_messages.append({"role": role, "content": message.content})
     return formatted_messages
 
-async def format_message_coversation(message: discord.Message) -> tuple[list[dict], bool, int]:
+
+async def format_message_coversation(
+    message: discord.Message,
+) -> tuple[list[dict], bool, int]:
     """
     Fetches a reply chain (if necessary) for message [message] and formats
     into Claude API input.

@@ -1,7 +1,7 @@
 from unittest.mock import AsyncMock, MagicMock
 
-import pytest
 import discord
+import pytest
 
 from denbot.points.commands import register_points_commands
 
@@ -19,6 +19,7 @@ def commands_setup():
         def decorator(func):
             registered_commands[kwargs["name"]] = func
             return func
+
         return decorator
 
     mock_bot.tree.command = fake_command

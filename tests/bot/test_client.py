@@ -1,9 +1,9 @@
-from unittest.mock import patch, AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import discord
 import pytest
 
-from denbot.bot.client import MyBot, create_bot, REPLY_LIMIT
+from denbot.bot.client import REPLY_LIMIT, MyBot, create_bot
 
 
 @pytest.fixture
@@ -19,7 +19,9 @@ def bot_and_mocks():
     # discord.Client.user is a read-only property, so we patch it on the class
     mock_user = MagicMock()
     mock_user.id = 12345
-    with patch.object(type(bot), "user", new_callable=lambda: property(lambda self: mock_user)):
+    with patch.object(
+        type(bot), "user", new_callable=lambda: property(lambda self: mock_user)
+    ):
         yield bot, mock_chatbot, mock_db
 
 
@@ -45,7 +47,9 @@ class TestOnMessage:
 
     @patch("denbot.bot.client.format_message_coversation", new_callable=AsyncMock)
     @patch("denbot.bot.client.format_attachment_data")
-    async def test_replies_in_thread(self, mock_attachments, mock_conversation, bot_and_mocks):
+    async def test_replies_in_thread(
+        self, mock_attachments, mock_conversation, bot_and_mocks
+    ):
         bot, mock_chatbot, mock_db = bot_and_mocks
         mock_attachments.return_value = []
         mock_conversation.return_value = ([], True, -1)
@@ -63,7 +67,9 @@ class TestOnMessage:
 
     @patch("denbot.bot.client.format_message_coversation", new_callable=AsyncMock)
     @patch("denbot.bot.client.format_attachment_data")
-    async def test_replies_normally_under_limit(self, mock_attachments, mock_conversation, bot_and_mocks):
+    async def test_replies_normally_under_limit(
+        self, mock_attachments, mock_conversation, bot_and_mocks
+    ):
         bot, mock_chatbot, mock_db = bot_and_mocks
         mock_attachments.return_value = []
         mock_conversation.return_value = ([], False, 3)
@@ -80,7 +86,9 @@ class TestOnMessage:
 
     @patch("denbot.bot.client.format_message_coversation", new_callable=AsyncMock)
     @patch("denbot.bot.client.format_attachment_data")
-    async def test_creates_thread_over_limit(self, mock_attachments, mock_conversation, bot_and_mocks):
+    async def test_creates_thread_over_limit(
+        self, mock_attachments, mock_conversation, bot_and_mocks
+    ):
         bot, mock_chatbot, mock_db = bot_and_mocks
         mock_attachments.return_value = []
         mock_conversation.return_value = ([], False, REPLY_LIMIT + 1)
@@ -103,7 +111,9 @@ class TestOnMessage:
 
     @patch("denbot.bot.client.format_message_coversation", new_callable=AsyncMock)
     @patch("denbot.bot.client.format_attachment_data")
-    async def test_strips_mention_from_input(self, mock_attachments, mock_conversation, bot_and_mocks):
+    async def test_strips_mention_from_input(
+        self, mock_attachments, mock_conversation, bot_and_mocks
+    ):
         bot, mock_chatbot, mock_db = bot_and_mocks
         mock_attachments.return_value = []
         mock_conversation.return_value = ([], False, 0)
@@ -121,11 +131,15 @@ class TestOnMessage:
 
     @patch("denbot.bot.client.format_message_coversation", new_callable=AsyncMock)
     @patch("denbot.bot.client.format_attachment_data")
-    async def test_error_sends_to_channel(self, mock_attachments, mock_conversation, bot_and_mocks):
+    async def test_error_sends_to_channel(
+        self, mock_attachments, mock_conversation, bot_and_mocks
+    ):
         bot, mock_chatbot, mock_db = bot_and_mocks
         mock_attachments.return_value = []
         mock_conversation.return_value = ([], False, 0)
-        mock_chatbot.generate_response = AsyncMock(side_effect=Exception("something broke"))
+        mock_chatbot.generate_response = AsyncMock(
+            side_effect=Exception("something broke")
+        )
 
         message = MagicMock()
         message.author = MagicMock()
@@ -149,7 +163,9 @@ class TestClose:
     async def test_close_still_closes_discord_on_db_error(self, bot_and_mocks):
         bot, _, mock_db = bot_and_mocks
         mock_db.close.side_effect = Exception("pool error")
-        with patch.object(discord.Client, "close", new_callable=AsyncMock) as mock_super_close:
+        with patch.object(
+            discord.Client, "close", new_callable=AsyncMock
+        ) as mock_super_close:
             await bot.close()
         mock_super_close.assert_called_once()
 
