@@ -14,15 +14,4 @@ jobs:
         with:
           python-version: "3.12"
       - run: uv sync --group dev
-      - run: uv run ruff check src tests
-      - run: uv run ruff format --check src tests
-
-  mypy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v3
-        with:
-          python-version: "3.12"
-      - run: uv sync --group dev
-      - run: uv run mypy
+      - run: make check

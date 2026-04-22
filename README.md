@@ -110,22 +110,20 @@ The `temporalio/auto-setup` image we use for dev is explicitly not recommended b
    - Select permissions: `Send Messages`, `Read Message History`
 6. Open the generated URL to invite the bot to a test Discord server
 
-## Running Tests
+## Dev workflow
+
+Common tasks are wrapped in a `Makefile`:
 
 ```bash
-uv run pytest
+make check      # lint + format-check + typecheck (what CI runs — read-only)
+make test       # run pytest
+make all        # check + test (default target)
+make fix        # auto-fix lint issues
+make format     # reformat files in place
+make lint       # lint only
+make typecheck  # type-check only
 ```
 
-Tests use mocked Discord, database, and Anthropic connections — no real services needed. If you haven't installed dev deps yet, run `uv sync --group dev` first.
+Underneath it's all `uv run ruff …`, `uv run mypy`, and `uv run pytest` — see the [Makefile](Makefile) for the exact commands. Tests use mocked Discord, database, and Anthropic connections, so no real services are needed. If you haven't installed dev deps yet, run `uv sync --group dev` first.
 
-## Linting and formatting
-
-This project uses [ruff](https://docs.astral.sh/ruff/) for linting and formatting.
-
-```bash
-uv run ruff check src tests          # report issues
-uv run ruff check --fix src tests    # auto-fix what it can
-uv run ruff format src tests         # format in place
-```
-
-CI runs `ruff check` and `ruff format --check` on every PR — a style violation fails the build.
+Linting and formatting are powered by [ruff](https://docs.astral.sh/ruff/); type-checking is powered by [mypy](https://mypy-lang.org/) with a lenient starter config. CI runs `make check` on every PR — a lint, format, or type violation fails the build.
