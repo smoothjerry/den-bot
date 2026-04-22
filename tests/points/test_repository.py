@@ -1,5 +1,5 @@
 import sys
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -20,6 +20,7 @@ def repo_and_mocks(mock_db):
             repo = PointsRepository(db)
             # Bind the mock_queries to the module's queries reference
             import denbot.points.repository as repo_module
+
             repo_module.queries = mock_queries
 
             yield repo, mock_queries, mock_conn

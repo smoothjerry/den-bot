@@ -81,10 +81,16 @@ class MyBot(discord.Client):
         if self.user in message.mentions:
             user_input = message.content.replace(f"<@{self.user.id}>", "").strip()
             image_data = format_attachment_data(message)
-            conversation_context, is_thread, reply_count = await format_message_coversation(message)
+            (
+                conversation_context,
+                is_thread,
+                reply_count,
+            ) = await format_message_coversation(message)
 
             try:
-                bot_reply = await self.chatbot.generate_response(user_input, conversation_context, image_data)
+                bot_reply = await self.chatbot.generate_response(
+                    user_input, conversation_context, image_data
+                )
 
                 # Check if the message is already part of a thread
                 if is_thread:

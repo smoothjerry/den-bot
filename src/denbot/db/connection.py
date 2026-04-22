@@ -10,7 +10,9 @@ class Database:
 
     def _ensure_pool(self):
         if self.pool.closed:
-            self.pool = SimpleConnectionPool(minconn=1, maxconn=3, dsn=self.database_url)
+            self.pool = SimpleConnectionPool(
+                minconn=1, maxconn=3, dsn=self.database_url
+            )
 
     @contextmanager
     def connection(self):

@@ -20,10 +20,18 @@ class PointsRepository:
 
             if result:
                 new_points = result[0] + points
-                queries.update_user_points(conn, points=new_points, display_name=display_name, user_id=user_id)
+                queries.update_user_points(
+                    conn, points=new_points, display_name=display_name, user_id=user_id
+                )
             else:
                 new_points = points
-                queries.insert_user(conn, user_id=user_id, username=username, display_name=display_name, points=new_points)
+                queries.insert_user(
+                    conn,
+                    user_id=user_id,
+                    username=username,
+                    display_name=display_name,
+                    points=new_points,
+                )
 
         return new_points
 

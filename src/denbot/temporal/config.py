@@ -6,7 +6,6 @@ defaults for local development against a docker-compose Temporal stack.
 
 import os
 from dataclasses import dataclass
-from typing import Optional
 
 DEFAULT_ADDRESS = "localhost:7233"
 DEFAULT_NAMESPACE = "default"
@@ -18,8 +17,8 @@ class TemporalConfig:
     address: str = DEFAULT_ADDRESS
     namespace: str = DEFAULT_NAMESPACE
     task_queue: str = DEFAULT_TASK_QUEUE
-    tls_cert_path: Optional[str] = None
-    tls_key_path: Optional[str] = None
+    tls_cert_path: str | None = None
+    tls_key_path: str | None = None
 
     @classmethod
     def from_env(cls) -> "TemporalConfig":

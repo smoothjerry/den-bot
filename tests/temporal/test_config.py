@@ -1,5 +1,3 @@
-import pytest
-
 from denbot.temporal.config import (
     DEFAULT_ADDRESS,
     DEFAULT_NAMESPACE,

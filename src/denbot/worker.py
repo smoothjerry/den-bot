@@ -15,7 +15,7 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 
-from denbot.temporal.worker import main
+from denbot.temporal.worker import main  # noqa: E402  (import after load_dotenv)
 
 if __name__ == "__main__":
     main()

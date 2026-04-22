@@ -1,13 +1,13 @@
-from unittest.mock import MagicMock, AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
 import discord
 
 from denbot.discord.messages import (
-    map_reply_chain_to_api_format,
-    fetch_reply_chain,
-    get_thread_history,
-    format_message_coversation,
     CHAIN_LIMIT,
+    fetch_reply_chain,
+    format_message_coversation,
+    get_thread_history,
+    map_reply_chain_to_api_format,
 )
 from tests.conftest import AsyncIteratorMock
 
@@ -178,7 +178,10 @@ class TestFormatMessageCoversation:
         assert count == 1
 
     async def test_thread_conversation(self):
-        thread_msgs = [_make_msg("user msg", bot=False), _make_msg("bot reply", bot=True)]
+        thread_msgs = [
+            _make_msg("user msg", bot=False),
+            _make_msg("bot reply", bot=True),
+        ]
         thread = MagicMock(spec=discord.Thread)
         thread.history.return_value = AsyncIteratorMock(thread_msgs)
 

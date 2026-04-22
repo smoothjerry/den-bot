@@ -7,7 +7,13 @@ class ClaudeHandler:
     def __init__(self, api_key):
         self.client = AsyncAnthropic(api_key=api_key)
 
-    async def generate_response(self, user_input, conversation_context, image_data, model="claude-sonnet-4-20250514"):
+    async def generate_response(
+        self,
+        user_input,
+        conversation_context,
+        image_data,
+        model="claude-sonnet-4-20250514",
+    ):
         """
         Generate a response from Claude based on the user input.
 
