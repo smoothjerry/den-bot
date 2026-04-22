@@ -115,14 +115,15 @@ The `temporalio/auto-setup` image we use for dev is explicitly not recommended b
 Common tasks are wrapped in a `Makefile`:
 
 ```bash
-make check    # lint + format-check (what CI runs — read-only)
-make test     # run pytest
-make all      # check + test (default target)
-make fix      # auto-fix lint issues
-make format   # reformat files in place
-make lint     # lint only
+make check      # lint + format-check + typecheck (what CI runs — read-only)
+make test       # run pytest
+make all        # check + test (default target)
+make fix        # auto-fix lint issues
+make format     # reformat files in place
+make lint       # lint only
+make typecheck  # type-check only
 ```
 
-Underneath it's all `uv run ruff …` and `uv run pytest` — see the [Makefile](Makefile) for the exact commands. Tests use mocked Discord, database, and Anthropic connections, so no real services are needed. If you haven't installed dev deps yet, run `uv sync --group dev` first.
+Underneath it's all `uv run ruff …`, `uv run mypy`, and `uv run pytest` — see the [Makefile](Makefile) for the exact commands. Tests use mocked Discord, database, and Anthropic connections, so no real services are needed. If you haven't installed dev deps yet, run `uv sync --group dev` first.
 
-Linting and formatting are powered by [ruff](https://docs.astral.sh/ruff/). CI runs `make check` on every PR — a style violation fails the build.
+Linting and formatting are powered by [ruff](https://docs.astral.sh/ruff/); type-checking is powered by [mypy](https://mypy-lang.org/) with a lenient starter config. CI runs `make check` on every PR — a lint, format, or type violation fails the build.

@@ -35,7 +35,7 @@ async def get_client(
     config = config or TemporalConfig.from_env()
 
     tls: bool | TLSConfig = False
-    if config.tls_enabled:
+    if config.tls_cert_path and config.tls_key_path:
         tls = TLSConfig(
             client_cert=Path(config.tls_cert_path).read_bytes(),
             client_private_key=Path(config.tls_key_path).read_bytes(),
