@@ -86,7 +86,7 @@ docker compose config                 # render the effective merged config
 docker compose exec bot bash
 
 # Run a one-off command in a fresh bot container (no need for it to be up)
-docker compose run --rm bot python -c "import denjamin; print('ok')"
+docker compose run --rm bot python -c "import denbot; print('ok')"
 
 # Run the test suite inside the image
 docker compose run --rm bot pytest
@@ -106,7 +106,7 @@ docker compose exec db pg_dump -U denbot denbot > denbot.sql
 cat denbot.sql | docker compose exec -T db psql -U denbot -d denbot
 
 # Re-apply schema.sql (only runs automatically on *empty* volume)
-docker compose exec -T db psql -U denbot -d denbot < db/schema.sql
+docker compose exec -T db psql -U denbot -d denbot < src/denbot/db/schema.sql
 ```
 
 Temporal's Postgres is the same deal with different creds:
@@ -126,7 +126,7 @@ docker compose down -v                      # stop and WIPE all volumes (destruc
 docker volume rm den-bot_pgdata             # wipe just the app DB (destructive)
 ```
 
-Note: `db/schema.sql` is only applied by the Postgres image on an *empty* data directory. If you change the schema, either apply the diff manually via `psql` or wipe `pgdata` to trigger a fresh init.
+Note: `src/denbot/db/schema.sql` is only applied by the Postgres image on an *empty* data directory. If you change the schema, either apply the diff manually via `psql` or wipe `pgdata` to trigger a fresh init.
 
 ## Restarting and stopping
 

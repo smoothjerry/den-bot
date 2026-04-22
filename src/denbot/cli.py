@@ -12,11 +12,11 @@ def main() -> None:
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     )
 
-    from ai import ClaudeHandler
-    from db import Database
-    from points import PointsRepository
-    from bot import create_bot
-    from temporal import TemporalConfig
+    from denbot.ai import ClaudeHandler
+    from denbot.db import Database
+    from denbot.points import PointsRepository
+    from denbot.bot import create_bot
+    from denbot.temporal import TemporalConfig
 
     # Initialize dependencies
     chatbot = ClaudeHandler(os.getenv("ANTHROPIC_API_KEY"))

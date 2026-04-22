@@ -2,7 +2,7 @@ from unittest.mock import MagicMock, AsyncMock
 
 import discord
 
-from discord_utils.messages import (
+from denbot.discord.messages import (
     map_reply_chain_to_api_format,
     fetch_reply_chain,
     get_thread_history,

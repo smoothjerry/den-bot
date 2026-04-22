@@ -11,7 +11,7 @@ from typing import Optional
 
 from temporalio.client import Client, TLSConfig
 
-from temporal.config import TemporalConfig
+from denbot.temporal.config import TemporalConfig
 
 logger = logging.getLogger(__name__)
 

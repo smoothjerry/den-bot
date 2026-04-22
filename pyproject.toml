@@ -2,10 +2,6 @@
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools]
-packages = ["ai", "bot", "db", "discord_utils", "points", "temporal"]
-py-modules = ["denjamin", "temporal_worker"]
-
 [project]
 name = "den-bot"
 version = "0.1.0"
@@ -21,8 +17,15 @@ dependencies = [
 ]
 
 [project.scripts]
-denjamin = "denjamin:main"
-temporal-worker = "temporal_worker:main"
+denjamin = "denbot.cli:main"
+temporal-worker = "denbot.worker:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"denbot.points" = ["sql/*.sql"]
+"denbot.db" = ["schema.sql"]
 
 [dependency-groups]
 dev = [
@@ -34,4 +37,3 @@ dev = [
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
-pythonpath = ["."]

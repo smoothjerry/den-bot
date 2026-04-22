@@ -2,7 +2,7 @@
 
 Workers are long-running processes that poll a task queue on the Temporal
 server and execute registered workflows/activities. This module is invoked
-by the ``temporal_worker.py`` root entrypoint.
+by the ``denbot.worker`` entrypoint.
 """
 
 import asyncio
@@ -10,10 +10,10 @@ import logging
 
 from temporalio.worker import Worker
 
-from temporal.activities import say_hello
-from temporal.client import get_client
-from temporal.config import TemporalConfig
-from temporal.workflows import HelloWorkflow
+from denbot.temporal.activities import say_hello
+from denbot.temporal.client import get_client
+from denbot.temporal.config import TemporalConfig
+from denbot.temporal.workflows import HelloWorkflow
 
 logger = logging.getLogger(__name__)
 

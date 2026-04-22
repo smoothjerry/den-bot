@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock
 
-from discord_utils.images import format_attachment_data
+from denbot.discord.images import format_attachment_data
 
 
 def _make_attachment(content_type, url="http://example.com/img.png"):

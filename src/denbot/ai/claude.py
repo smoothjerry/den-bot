@@ -1,6 +1,6 @@
 from anthropic import AsyncAnthropic
 
-from ai.config import DENJAMIN_SYSTEM_PROMPT
+from denbot.ai.config import DENJAMIN_SYSTEM_PROMPT
 
 
 class ClaudeHandler:
