@@ -1,15 +1,20 @@
 from pathlib import Path
+from typing import Any
 
 import aiosql
+
+from denbot.db.connection import Database
 
 queries = aiosql.from_path(Path(__file__).parent / "sql", "psycopg2")
 
 
 class PointsRepository:
-    def __init__(self, db):
+    def __init__(self, db: Database) -> None:
         self.db = db
 
-    def update_points(self, user_id, username, display_name, points):
+    def update_points(
+        self, user_id: int, username: str, display_name: str, points: int
+    ) -> int:
         """
         Add or subtract points for a user. Inserts the user if they don't exist.
 
@@ -35,7 +40,7 @@ class PointsRepository:
 
         return new_points
 
-    def get_leaderboard(self):
+    def get_leaderboard(self) -> list[Any]:
         """
         Returns list of (user_id, points) tuples ordered by points descending.
         """

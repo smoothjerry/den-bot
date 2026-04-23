@@ -1,3 +1,5 @@
+from collections.abc import Callable
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -6,13 +8,13 @@ import pytest
 class AsyncIteratorMock:
     """Mock for Discord async iterators like thread.history()."""
 
-    def __init__(self, items):
+    def __init__(self, items: list[Any]) -> None:
         self.items = iter(items)
 
-    def __aiter__(self):
+    def __aiter__(self) -> "AsyncIteratorMock":
         return self
 
-    async def __anext__(self):
+    async def __anext__(self) -> Any:
         try:
             return next(self.items)
         except StopIteration:
@@ -20,17 +22,17 @@ class AsyncIteratorMock:
 
 
 @pytest.fixture
-def make_discord_message():
+def make_discord_message() -> Callable[..., MagicMock]:
     """Factory fixture for creating mock Discord messages."""
 
     def _make(
-        content="hello",
-        author_bot=False,
-        attachments=None,
-        reference=None,
-        channel=None,
-        mentions=None,
-    ):
+        content: str = "hello",
+        author_bot: bool = False,
+        attachments: list[Any] | None = None,
+        reference: Any = None,
+        channel: Any = None,
+        mentions: list[Any] | None = None,
+    ) -> MagicMock:
         msg = MagicMock()
         msg.content = content
         msg.author.bot = author_bot
@@ -50,7 +52,7 @@ def make_discord_message():
 
 
 @pytest.fixture
-def mock_db():
+def mock_db() -> tuple[MagicMock, MagicMock]:
     """Fixture providing a mock Database and its mock connection."""
     db = MagicMock()
     mock_conn = MagicMock()

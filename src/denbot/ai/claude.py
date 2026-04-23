@@ -1,19 +1,21 @@
+from typing import Any
+
 from anthropic import AsyncAnthropic
 
 from denbot.ai.config import DENJAMIN_SYSTEM_PROMPT
 
 
 class ClaudeHandler:
-    def __init__(self, api_key):
+    def __init__(self, api_key: str | None) -> None:
         self.client = AsyncAnthropic(api_key=api_key)
 
     async def generate_response(
         self,
-        user_input,
-        conversation_context,
-        image_data,
-        model="claude-sonnet-4-20250514",
-    ):
+        user_input: str,
+        conversation_context: list[dict[str, Any]] | None,
+        image_data: list[dict[str, Any]],
+        model: str = "claude-sonnet-4-20250514",
+    ) -> str:
         """
         Generate a response from Claude based on the user input.
 
@@ -26,15 +28,15 @@ class ClaudeHandler:
         Returns:
             str: The AI's response.
         """
-        content = user_input
+        content: str | list[dict[str, Any]] = user_input
         if image_data:
-            new_user_input = {
+            new_user_input: dict[str, Any] = {
                 "type": "text",
                 "text": user_input,
             }
             content = [new_user_input, *image_data]
 
-        messages = []
+        messages: list[dict[str, Any]] = []
         if conversation_context:
             messages.extend(conversation_context)
         messages.append({"role": "user", "content": content})
@@ -46,13 +48,15 @@ class ClaudeHandler:
                 model=model,
                 max_tokens=1024,
                 system=DENJAMIN_SYSTEM_PROMPT,
-                messages=messages,
+                messages=messages,  # type: ignore[arg-type]
             )
-            return response.content[0].text
+            return response.content[0].text  # type: ignore[union-attr]
         except Exception as e:
             return f"Error: {e}"
 
-    def _coalesce_messages(self, messages):
+    def _coalesce_messages(
+        self, messages: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """Merge consecutive same-role messages for Anthropic API compatibility."""
         if not messages:
             return messages

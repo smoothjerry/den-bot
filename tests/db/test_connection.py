@@ -5,7 +5,7 @@ from denbot.db.connection import Database
 
 class TestDatabase:
     @patch("denbot.db.connection.SimpleConnectionPool")
-    def test_connection_yields_and_returns(self, mock_pool_cls):
+    def test_connection_yields_and_returns(self, mock_pool_cls: MagicMock) -> None:
         mock_pool = MagicMock()
         mock_conn = MagicMock()
         mock_conn.closed = 0
@@ -21,7 +21,7 @@ class TestDatabase:
         mock_pool.putconn.assert_called_once_with(mock_conn)
 
     @patch("denbot.db.connection.SimpleConnectionPool")
-    def test_close_calls_closeall(self, mock_pool_cls):
+    def test_close_calls_closeall(self, mock_pool_cls: MagicMock) -> None:
         mock_pool = MagicMock()
         mock_pool_cls.return_value = mock_pool
 

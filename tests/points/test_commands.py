@@ -1,3 +1,4 @@
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 
 import discord
@@ -7,16 +8,16 @@ from denbot.points.commands import register_points_commands
 
 
 @pytest.fixture
-def commands_setup():
+def commands_setup() -> tuple[dict[str, Any], MagicMock]:
     """Register commands on a mock bot and return the callbacks + mocked repo."""
     mock_points_repo = MagicMock()
 
-    registered_commands = {}
+    registered_commands: dict[str, Any] = {}
 
     mock_bot = MagicMock()
 
-    def fake_command(**kwargs):
-        def decorator(func):
+    def fake_command(**kwargs: Any) -> Any:
+        def decorator(func: Any) -> Any:
             registered_commands[kwargs["name"]] = func
             return func
 
@@ -29,24 +30,28 @@ def commands_setup():
     return registered_commands, mock_points_repo
 
 
-def _make_interaction():
+def _make_interaction() -> MagicMock:
     interaction = MagicMock(spec=discord.Interaction)
     interaction.response = MagicMock()
     interaction.response.send_message = AsyncMock()
     return interaction
 
 
-def _make_member(user_id=123, name="user#0001", display_name="User"):
+def _make_member(
+    user_id: int = 123, name: str = "user#0001", display_name: str = "User"
+) -> MagicMock:
     member = MagicMock(spec=discord.Member)
     member.id = user_id
-    member.__str__ = MagicMock(return_value=name)
+    member.__str__ = MagicMock(return_value=name)  # type: ignore[method-assign]
     member.display_name = display_name
     member.mention = f"<@{user_id}>"
     return member
 
 
 class TestUpdatePoints:
-    async def test_positive_points(self, commands_setup):
+    async def test_positive_points(
+        self, commands_setup: tuple[dict[str, Any], MagicMock]
+    ) -> None:
         commands, mock_repo = commands_setup
         mock_repo.update_points.return_value = 10
         interaction = _make_interaction()
@@ -58,7 +63,9 @@ class TestUpdatePoints:
         assert "Added" in response
         assert "10 points" in response
 
-    async def test_negative_points(self, commands_setup):
+    async def test_negative_points(
+        self, commands_setup: tuple[dict[str, Any], MagicMock]
+    ) -> None:
         commands, mock_repo = commands_setup
         mock_repo.update_points.return_value = 45
         interaction = _make_interaction()
@@ -70,7 +77,9 @@ class TestUpdatePoints:
         assert "Subtracted" in response
         assert "5 points" in response
 
-    async def test_error_handling(self, commands_setup):
+    async def test_error_handling(
+        self, commands_setup: tuple[dict[str, Any], MagicMock]
+    ) -> None:
         commands, mock_repo = commands_setup
         mock_repo.update_points.side_effect = Exception("db error")
         interaction = _make_interaction()
@@ -84,7 +93,9 @@ class TestUpdatePoints:
 
 
 class TestLeaderboard:
-    async def test_empty_leaderboard(self, commands_setup):
+    async def test_empty_leaderboard(
+        self, commands_setup: tuple[dict[str, Any], MagicMock]
+    ) -> None:
         commands, mock_repo = commands_setup
         mock_repo.get_leaderboard.return_value = []
         interaction = _make_interaction()
@@ -94,7 +105,9 @@ class TestLeaderboard:
         response = interaction.response.send_message.call_args[0][0]
         assert "No points have been awarded yet!" in response
 
-    async def test_populated_leaderboard(self, commands_setup):
+    async def test_populated_leaderboard(
+        self, commands_setup: tuple[dict[str, Any], MagicMock]
+    ) -> None:
         commands, mock_repo = commands_setup
         mock_repo.get_leaderboard.return_value = [(1, 100), (2, 50)]
         interaction = _make_interaction()
@@ -106,7 +119,9 @@ class TestLeaderboard:
         assert "<@1>: 100 points" in response
         assert "<@2>: 50 points" in response
 
-    async def test_error_handling(self, commands_setup):
+    async def test_error_handling(
+        self, commands_setup: tuple[dict[str, Any], MagicMock]
+    ) -> None:
         commands, mock_repo = commands_setup
         mock_repo.get_leaderboard.side_effect = Exception("db error")
         interaction = _make_interaction()

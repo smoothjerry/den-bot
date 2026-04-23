@@ -1,9 +1,17 @@
 import logging
+from typing import TYPE_CHECKING, Any
 
 import discord
 
+from denbot.ai.claude import ClaudeHandler
+from denbot.db.connection import Database
 from denbot.discord import format_attachment_data, format_message_coversation
 from denbot.points import register_points_commands
+from denbot.points.repository import PointsRepository
+from denbot.temporal.config import TemporalConfig
+
+if TYPE_CHECKING:
+    pass
 
 logger = logging.getLogger(__name__)
 
@@ -11,7 +19,13 @@ REPLY_LIMIT = 5
 
 
 class MyBot(discord.Client):
-    def __init__(self, chatbot, points_repo, db, temporal_config=None):
+    def __init__(
+        self,
+        chatbot: ClaudeHandler,
+        points_repo: PointsRepository,
+        db: Database,
+        temporal_config: TemporalConfig | None = None,
+    ) -> None:
         intents = discord.Intents.default()
         intents.message_content = True
         super().__init__(intents=intents)
@@ -21,11 +35,11 @@ class MyBot(discord.Client):
         self.temporal_config = temporal_config
         # Populated lazily in setup_hook(); None means Temporal is disabled
         # or the initial connection failed.
-        self.temporal_client = None
+        self.temporal_client: Any = None
 
         register_points_commands(self, points_repo)
 
-    async def setup_hook(self):
+    async def setup_hook(self) -> None:
         logger.info("Bot starting up, verifying database connectivity...")
         try:
             with self.db.connection() as conn:
@@ -55,14 +69,14 @@ class MyBot(discord.Client):
         else:
             logger.info("Temporal disabled (no TEMPORAL_ADDRESS configured).")
 
-    async def on_ready(self):
+    async def on_ready(self) -> None:
         try:
             await self.tree.sync()
             logger.info("Logged in as %s and synced commands!", self.user)
         except Exception as e:
             logger.error("Failed to sync commands: %s", e)
 
-    async def close(self):
+    async def close(self) -> None:
         logger.info("Shutdown initiated, cleaning up resources...")
         try:
             self.db.close()
@@ -72,7 +86,7 @@ class MyBot(discord.Client):
         await super().close()
         logger.info("Discord client closed.")
 
-    async def on_message(self, message):
+    async def on_message(self, message: discord.Message) -> None:
         # Ignore messages from the bot itself
         if message.author == self.user:
             return
@@ -108,5 +122,10 @@ class MyBot(discord.Client):
                 await message.channel.send(f"Error: {e}")
 
 
-def create_bot(chatbot, points_repo, db, temporal_config=None):
+def create_bot(
+    chatbot: ClaudeHandler,
+    points_repo: PointsRepository,
+    db: Database,
+    temporal_config: TemporalConfig | None = None,
+) -> MyBot:
     return MyBot(chatbot, points_repo, db, temporal_config=temporal_config)

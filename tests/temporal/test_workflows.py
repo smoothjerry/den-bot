@@ -15,7 +15,7 @@ from denbot.temporal.workflows import HelloWorkflow
 
 
 @pytest.mark.asyncio
-async def test_hello_workflow_end_to_end():
+async def test_hello_workflow_end_to_end() -> None:
     async with await WorkflowEnvironment.start_time_skipping() as env:
         task_queue = f"test-{uuid.uuid4()}"
         async with Worker(
