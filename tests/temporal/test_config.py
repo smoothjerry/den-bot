@@ -1,3 +1,5 @@
+import pytest
+
 from denbot.temporal.config import (
     DEFAULT_ADDRESS,
     DEFAULT_NAMESPACE,
@@ -6,7 +8,7 @@ from denbot.temporal.config import (
 )
 
 
-def test_from_env_defaults(monkeypatch):
+def test_from_env_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
     for var in (
         "TEMPORAL_ADDRESS",
         "TEMPORAL_NAMESPACE",
@@ -25,7 +27,7 @@ def test_from_env_defaults(monkeypatch):
     assert config.tls_enabled is False
 
 
-def test_from_env_overrides(monkeypatch):
+def test_from_env_overrides(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("TEMPORAL_ADDRESS", "temporal.prod:7233")
     monkeypatch.setenv("TEMPORAL_NAMESPACE", "denjamin-prod")
     monkeypatch.setenv("TEMPORAL_TASK_QUEUE", "denjamin-prod-main")
@@ -41,7 +43,7 @@ def test_from_env_overrides(monkeypatch):
     assert config.tls_enabled is True
 
 
-def test_tls_enabled_requires_both_paths(monkeypatch):
+def test_tls_enabled_requires_both_paths(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("TEMPORAL_TLS_CERT_PATH", "/certs/client.pem")
     monkeypatch.delenv("TEMPORAL_TLS_KEY_PATH", raising=False)
     assert TemporalConfig.from_env().tls_enabled is False

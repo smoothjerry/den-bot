@@ -1,13 +1,17 @@
+from typing import Any
+
 import discord
 
+from denbot.points.repository import PointsRepository
 
-def register_points_commands(bot, points_repo):
+
+def register_points_commands(bot: Any, points_repo: PointsRepository) -> None:
     @bot.tree.command(
         name="updatepoints", description="Add or subtract points for a user."
     )
     async def update_points(
         interaction: discord.Interaction, member: discord.Member, points: int
-    ):
+    ) -> None:
         user_id = member.id
         username = str(member)
         display_name = member.display_name
@@ -29,7 +33,7 @@ def register_points_commands(bot, points_repo):
     @bot.tree.command(
         name="leaderboard", description="View the leaderboard of den points."
     )
-    async def leaderboard(interaction: discord.Interaction):
+    async def leaderboard(interaction: discord.Interaction) -> None:
         try:
             rows = points_repo.get_leaderboard()
 

@@ -1,11 +1,16 @@
 import sys
+from collections.abc import Iterator
 from unittest.mock import MagicMock, patch
 
 import pytest
 
+from denbot.points.repository import PointsRepository
+
 
 @pytest.fixture
-def repo_and_mocks(mock_db):
+def repo_and_mocks(
+    mock_db: tuple[MagicMock, MagicMock],
+) -> Iterator[tuple[PointsRepository, MagicMock, MagicMock]]:
     db, mock_conn = mock_db
     mock_queries = MagicMock()
 
@@ -27,7 +32,9 @@ def repo_and_mocks(mock_db):
 
 
 class TestUpdatePoints:
-    def test_new_user_inserts(self, repo_and_mocks):
+    def test_new_user_inserts(
+        self, repo_and_mocks: tuple[PointsRepository, MagicMock, MagicMock]
+    ) -> None:
         repo, mock_queries, mock_conn = repo_and_mocks
         mock_queries.get_user_points.return_value = None
 
@@ -38,7 +45,9 @@ class TestUpdatePoints:
         )
         assert result == 10
 
-    def test_existing_user_updates(self, repo_and_mocks):
+    def test_existing_user_updates(
+        self, repo_and_mocks: tuple[PointsRepository, MagicMock, MagicMock]
+    ) -> None:
         repo, mock_queries, mock_conn = repo_and_mocks
         mock_queries.get_user_points.return_value = (50,)
 
@@ -49,7 +58,9 @@ class TestUpdatePoints:
         )
         assert result == 70
 
-    def test_negative_points(self, repo_and_mocks):
+    def test_negative_points(
+        self, repo_and_mocks: tuple[PointsRepository, MagicMock, MagicMock]
+    ) -> None:
         repo, mock_queries, mock_conn = repo_and_mocks
         mock_queries.get_user_points.return_value = (50,)
 
@@ -60,7 +71,9 @@ class TestUpdatePoints:
         )
         assert result == 20
 
-    def test_returns_new_total(self, repo_and_mocks):
+    def test_returns_new_total(
+        self, repo_and_mocks: tuple[PointsRepository, MagicMock, MagicMock]
+    ) -> None:
         repo, mock_queries, mock_conn = repo_and_mocks
         mock_queries.get_user_points.return_value = (100,)
 
@@ -69,14 +82,18 @@ class TestUpdatePoints:
 
 
 class TestGetLeaderboard:
-    def test_returns_rows(self, repo_and_mocks):
+    def test_returns_rows(
+        self, repo_and_mocks: tuple[PointsRepository, MagicMock, MagicMock]
+    ) -> None:
         repo, mock_queries, mock_conn = repo_and_mocks
         mock_queries.get_leaderboard.return_value = [(1, 100), (2, 50)]
 
         result = repo.get_leaderboard()
         assert result == [(1, 100), (2, 50)]
 
-    def test_empty(self, repo_and_mocks):
+    def test_empty(
+        self, repo_and_mocks: tuple[PointsRepository, MagicMock, MagicMock]
+    ) -> None:
         repo, mock_queries, mock_conn = repo_and_mocks
         mock_queries.get_leaderboard.return_value = []
 

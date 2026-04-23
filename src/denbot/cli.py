@@ -20,7 +20,7 @@ def main() -> None:
 
     # Initialize dependencies
     chatbot = ClaudeHandler(os.getenv("ANTHROPIC_API_KEY"))
-    db = Database(os.getenv("DATABASE_URL"))
+    db = Database(os.environ["DATABASE_URL"])
     points_repo = PointsRepository(db)
 
     # Temporal is opt-in: only wire it up if TEMPORAL_ADDRESS is set. The actual
@@ -32,7 +32,7 @@ def main() -> None:
 
     # Create and run the bot
     bot = create_bot(chatbot, points_repo, db, temporal_config=temporal_config)
-    bot.run(os.getenv("BOT_TOKEN"))
+    bot.run(os.environ["BOT_TOKEN"])
 
 
 if __name__ == "__main__":

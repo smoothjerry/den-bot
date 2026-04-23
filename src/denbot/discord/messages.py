@@ -10,7 +10,7 @@ import discord
 CHAIN_LIMIT = 10
 
 
-async def get_thread_history(thread: discord.Thread):
+async def get_thread_history(thread: discord.Thread) -> list[discord.Message]:
     """
     Fetches up to CHAIN_LIMIT messages from a Discord thread.
     """

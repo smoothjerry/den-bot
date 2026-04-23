@@ -12,7 +12,7 @@ from denbot.discord.messages import (
 from tests.conftest import AsyncIteratorMock
 
 
-def _make_msg(content, bot=False):
+def _make_msg(content: str, bot: bool = False) -> MagicMock:
     msg = MagicMock()
     msg.content = content
     msg.author.bot = bot
@@ -20,42 +20,42 @@ def _make_msg(content, bot=False):
 
 
 class TestMapReplyChainToApiFormat:
-    def test_empty_chain(self):
+    def test_empty_chain(self) -> None:
         assert map_reply_chain_to_api_format([]) == []
 
-    def test_user_message_role(self):
+    def test_user_message_role(self) -> None:
         result = map_reply_chain_to_api_format([_make_msg("hi", bot=False)])
         assert result[0]["role"] == "user"
 
-    def test_bot_message_role(self):
+    def test_bot_message_role(self) -> None:
         result = map_reply_chain_to_api_format([_make_msg("hello", bot=True)])
         assert result[0]["role"] == "assistant"
 
-    def test_mixed_chain_preserves_order(self):
+    def test_mixed_chain_preserves_order(self) -> None:
         msgs = [
             _make_msg("a", bot=False),
             _make_msg("b", bot=True),
             _make_msg("c", bot=False),
             _make_msg("d", bot=True),
         ]
-        result = map_reply_chain_to_api_format(msgs)
+        result = map_reply_chain_to_api_format(msgs)  # type: ignore[arg-type]
         assert [m["role"] for m in result] == ["user", "assistant", "user", "assistant"]
         assert [m["content"] for m in result] == ["a", "b", "c", "d"]
 
-    def test_content_preserved(self):
+    def test_content_preserved(self) -> None:
         result = map_reply_chain_to_api_format([_make_msg("exact content here")])
         assert result[0]["content"] == "exact content here"
 
 
 class TestGetThreadHistory:
-    async def test_returns_messages(self):
+    async def test_returns_messages(self) -> None:
         msgs = [_make_msg("a"), _make_msg("b"), _make_msg("c")]
         thread = MagicMock(spec=discord.Thread)
         thread.history.return_value = AsyncIteratorMock(msgs)
         result = await get_thread_history(thread)
         assert result == msgs
 
-    async def test_passes_chain_limit(self):
+    async def test_passes_chain_limit(self) -> None:
         thread = MagicMock(spec=discord.Thread)
         thread.history.return_value = AsyncIteratorMock([])
         await get_thread_history(thread)
@@ -63,7 +63,7 @@ class TestGetThreadHistory:
 
 
 class TestFetchReplyChain:
-    async def test_no_reference(self):
+    async def test_no_reference(self) -> None:
         msg = MagicMock()
         msg.channel = MagicMock(spec=discord.TextChannel)
         msg.reference = None
@@ -72,7 +72,7 @@ class TestFetchReplyChain:
         assert is_thread is False
         assert count == 0
 
-    async def test_single_reply(self):
+    async def test_single_reply(self) -> None:
         parent = _make_msg("parent")
         parent.reference = None
 
@@ -88,7 +88,7 @@ class TestFetchReplyChain:
         assert is_thread is False
         assert count == 1
 
-    async def test_deep_chain_reversed(self):
+    async def test_deep_chain_reversed(self) -> None:
         """A 3-deep reply chain should be returned oldest-first."""
         channel = MagicMock(spec=discord.TextChannel)
 
@@ -119,7 +119,7 @@ class TestFetchReplyChain:
         assert is_thread is False
         assert count == 3
 
-    async def test_chain_limit_respected(self):
+    async def test_chain_limit_respected(self) -> None:
         """Chain should stop at CHAIN_LIMIT even if more replies exist."""
         channel = MagicMock(spec=discord.TextChannel)
 
@@ -145,7 +145,7 @@ class TestFetchReplyChain:
         assert len(chain) == CHAIN_LIMIT
         assert count == CHAIN_LIMIT
 
-    async def test_thread_delegates_to_history(self):
+    async def test_thread_delegates_to_history(self) -> None:
         thread_msgs = [_make_msg("t1"), _make_msg("t2")]
         thread = MagicMock(spec=discord.Thread)
         thread.history.return_value = AsyncIteratorMock(thread_msgs)
@@ -160,7 +160,7 @@ class TestFetchReplyChain:
 
 
 class TestFormatMessageCoversation:
-    async def test_formats_reply_chain(self):
+    async def test_formats_reply_chain(self) -> None:
         """Integration test: real internal calls, mocked Discord I/O."""
         parent = _make_msg("parent question", bot=False)
         parent.reference = None
@@ -177,7 +177,7 @@ class TestFormatMessageCoversation:
         assert is_thread is False
         assert count == 1
 
-    async def test_thread_conversation(self):
+    async def test_thread_conversation(self) -> None:
         thread_msgs = [
             _make_msg("user msg", bot=False),
             _make_msg("bot reply", bot=True),
